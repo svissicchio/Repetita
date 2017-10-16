@@ -1,0 +1,69 @@
+When executed from command line, REPETITA requires a file for the topology and a file for the traffic demands as input.
+Hence, adding new topologies or traffic data for the existing topologies can be done straightforwardly by specifying the appropriate files while running REPETITA.
+
+Care is only needed to **respect the (intuitive) data format assumed by REPETITA** for topology and demands files.
+We detail such a format in the following.
+
+---------------
+Topology Format
+---------------
+The topology format describes nodes and directed edges of the topology.
+Each node has a label and a geographical position, each edge has a label, a source node, a destination node, an IGP weight, a bandwidth, and a delay.
+
+The node geographical positions can be useful for visualization purposes.
+The edge bandwidth can be in any unit, since the usage depends on the corresponding demands file(s); we use kilobits per second.
+Similarly, we use delays in microseconds.
+
+For instance, file Arpanet196912.graph looks like:
+
+::
+   
+   NODES 4
+   label x y
+   0_SRI -122.18219 37.45383
+   1_USCB -119.69819 34.42083
+   2_UCLA -118.24368 34.05223
+   3_UTAH -111.89105 40.76078
+
+   EDGES 8
+   label src dest weight bw delay
+   edge_0 0 1 1 1000000 678
+   edge_1 1 0 1 1000000 678
+   edge_2 0 2 1 1000000 869
+   edge_3 2 0 1 1000000 869
+   edge_4 0 3 1 1000000 1604
+   edge_5 3 0 1 1000000 1604
+   edge_6 1 2 1 1000000 237
+   edge_7 2 1 1 1000000 237
+
+The first line is `NODES` followed by the number of nodes, then a 1-line memo for a human editor, one line per node, one empty line, a line containing `EDGES` followed by the number of edges, a memo line, and one line per edge.
+There might be several edges with the same source, destination pair.
+
+--------------
+Demands Format
+--------------
+A demands file is associated to a topology.
+It contains a list of demands, that each have a name, source node, destination node and a bandwidth.
+
+For instance, a demands file for the above Arpanet graph might look like:
+
+::
+
+   DEMANDS 12
+   label src dest bw
+   demand_0 0 1 435117
+   demand_1 0 2 532282
+   demand_2 0 3 170697
+   demand_3 1 0 598778
+   demand_4 1 2 265255
+   demand_5 1 3 85065
+   demand_6 2 0 977314
+   demand_7 2 1 353915
+   demand_8 2 3 138841
+   demand_9 3 0 184807
+   demand_10 3 1 66923
+   demand_11 3 2 81868
+
+The first line is `DEMANDS` followed by the number of demands, then a memo line, and one line per demand.
+Notice that source and destination are the number of the node in the topology's list, so as to not force the node names to be different.
+There might be several demands with the same source, destination pair.

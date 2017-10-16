@@ -1,0 +1,68 @@
+There are two options to extend REPETITA with new solvers: 1) add a standalone, executable software as an external solver; and 2) integrate the new algorithm inside the REPETITA framework.
+
+-------
+Using external solvers
+-------  
+
+Add the implementation (in any programming language, potentially) of your algorithm to ``external_solver/`` inside the ``repetita`` directory, and specify in ``repetita/external_solver/solvers-specs.txt`` how to run this algorithm on an input topology and a demand file.
+
+The file ``repetita/external_solver/solvers-specs.txt`` reports information on how to specify instructions to run external solvers, as below. ::
+
+# For each external solver, specify how to use it within REPETITA
+# 
+# The definition of each solver must start with an identifier within square brackets.
+# It must also include the definition of the following features:
+# - name                      Name of the solver
+# - run command               Command to run the solver from CLI (use strings '$TOPOFILE' and '$DEMANDFILE' to specify topology and demand files to be taken as input; use string '$OUTFILE' for output file)
+# - gettime command           Command to output the time taken by the solver during its last run
+# - optimization effect       How to modify the routing configuration according to the output of 'run command' 
+# - field separator           The field separator in the output of 'run command' (default ' ', see below for more details)
+# - key field                 The field number in the output of 'run command' that has to be used as keys by the optimization effect (default '0', see below for more details)
+# - value field               The field number in the output of 'run command' that has to be used as value by the optimization effect (default '1', see below for more details)
+# - optimization objective    An integer indicating the solver objective among {0 for 'undefined'; 1 for 'minimize max link utilization'}
+# 
+# Implemented optimization effect
+# - setLinkWeights            Changes IGP link weights from the output of the run command (the key field is the identifier of a link, the value field is the new weight to be set on the given link)
+# - setExplicitPaths          Sets explicit paths (e.g., tunnels) from the output of the run command (the key field is the identifier of a demand, the value field is the explicit path to be set for the given demand)
+
+The current REPETITA implementation also comes with two external solvers: They are nothing else than examples of how to configure external solvers in the framework, without any claim of being meaningful from a traffic engineering viewpoint.
+
+As an illustration, we consider here compute_random_paths.py. This is a python script, returning randomly computed tunnels between pairs of nodes with traffic between them. 
+The part of the ``repetita/external_solver/solvers-specs.txt`` file containing information on how to run this script is the following: ::
+
+
+ [compute_random_paths.py]
+ name = randomExplicitPaths
+ run command = python2.7 external_solvers/compute_random_paths.py $TOPOFILE $DEMANDFILE $OUTFILE
+ gettime command = cat $OUTFILE | grep 'execution time' | awk -v FS=': ' '{print $2}'
+ optimization effect = setExplicitPaths
+ field separator = '; '
+ key field = 0
+ value field = 2
+ optimization objective = 0
+
+
+The first line is an identifier for the description of the new external solver.
+The second line gives information on how to run the solver on any pairs of files $TOPOFILE and $DEMANDFILE specifying information about topology and traffic demands in the REPETITA format (see here_ for more information).
+The third line details how to extract information about the time spent by the solver during its last run ($OUTFILE is the output file written by the ``run command``, as specified in the previous line).
+The ``optimization effect`` and the following three lines instruct REPETITA to properly apply the optimization returned in standard output by the ``run command`` -- e.g., how to modify a REPETITA Setting object accordingly.
+The last line provides an indication of the optimization objective: This is mainly used in tests at the moment.  
+
+-------
+Integrating new solvers
+-------  
+
+Solvers can be integrated within the REPETITA framework by adding a class to a sub-package of ``edu.repetita.solvers``. The class of the new solver must extend ``edu.repetita.core.Solver``. Once added, the new solver will be directly integrated in the framework, thanks to (no further modification needed in addition to placing the new class in a sub-folder of ``edu.repetita.solvers``).
+In fact, the following command should produce a new README.txt file already including the new solver. ::
+
+ $ ./repetita -doc
+
+Two options are available to implement a new solver.
+
+- The first option is create a software wrapper that implements abstract methods in the ``edu.repetita.core.Solver`` class by calling the appropriate functions in predefined code. An example of this integration mode is represented by the class ``edu.repetita.solvers.sr.DefoCP``, that integrates the Scala implementation of the DEFO_ algorithm in about 80 lines of code.
+
+- The second option is to re-implement the algorithm from scratch, in Java, exploiting the functions made available by REPETITA. For an example of this option, we refer the reader to the implementation of ``edu.repetita.solvers.wo.TabuIGPWO``, that implements a Local Search inspired by the IGP link weight optimization proposed by `Fortz and Thorup`_.
+
+.. _here : https://github.com/stefanovis/repetita/wiki/Adding-Problem-Instances
+.. _DEFO : http://sites.uclouvain.be/defo/
+.. _`Fortz and Thorup` : https://doi.org/10.1109/INFCOM.2000.832225

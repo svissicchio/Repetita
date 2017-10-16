@@ -1,0 +1,36 @@
+The easiest use case for Repetita is to run one of its already implemented solvers from command line.
+Say you have a topology a demands file called, respectively, instance.graph and instance.demands in the data/ directory.
+The following commands will produce, in 10 seconds, an ``instance.paths`` file containing a Segment Routing path for every demand.
+
+-----------------------------------
+Routing with MIP
+-----------------------------------
+Repetita features a Mixed Integer Programming (MIP) model of 2-SR inspired by `Bhatia et al.`_ .
+This model computes SR-paths with at most one detour, optimally.
+
+The backend solver is Gurobi_ that need to be installed separately.
+It has been tested with Gurobi 6.5 and 7.0.
+Once Gurobi is installed, type: ::
+  
+  $ ./repetita -graph data/instance.graph -demands data/instance.demands -solver MIPTwoSRNoSplit -t 10 -outpaths instance.paths
+
+-------
+Routing with CP
+-------
+
+This uses the CP algorithm described in DEFO-CP_ ::
+
+  $ ./repetita -graph data/instance.graph -demands data/instance.demands -solver defoCP -t 10 -outpaths instance.paths
+
+--------------------
+Routing with Local Search
+--------------------
+This uses the local search algorithm described in SRLS_ ::
+
+  $ ./repetita -graph data/instance.graph -demands data/instance.demands -solver SRLS -t 10 -outpaths instance.paths
+
+
+.. _`Bhatia et al.` : http://dx.doi.org/10.1109/INFOCOM.2015.7218434
+.. _Gurobi : http://www.gurobi.com
+.. _DEFO-CP : http://sites.uclouvain.be/defo/
+.. _SRLS : http://www0.cs.ucl.ac.uk/staff/S.Vissicchio/papers/ExpectTheUnexpectedSubSecondOptimizationForSegmentRouting_infocom17.pdf

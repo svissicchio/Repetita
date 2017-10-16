@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# colors for echo output
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# print error function
+print_need_tool() {
+	echo -e "${RED}ERROR: we need " + $1 + " installed to compile.${NC}"
+	exit 1
+}
+
+# check that java, scala and sbt are installed
+if [[ $(which java) == "" ]]; then
+	print_need_tool "java"
+fi
+
+if [[ $(which scala) == "" ]]; then
+	print_need_tool "scala"
+fi
+
+if [[ $(which sbt) == "" ]]; then
+	print_need_tool "sbt"
+fi
+
+# check for gurobi
+if [[ ! -f lib/gurobi.jar ]]; then
+	echo -e "${RED}Please copy gurobi.jar in the lib/ directory.${NC}"
+	echo -e "Some parts of repetita (e.g., MCF and the MIPTwoSRNoSplit solver) need gurobi."
+	echo -e "- If you don't have gurobi, you can visit http://www.gurobi.com to get more information on how to download and install the tool"
+	echo -e "- Once you have installed gurobi, you can find the location of gurobi.py by searching your filesystem. For example, in Linux and macOS, you can run the command: find / -name gurobi.jar 2>&1 | grep -v \"^find:\""
+	exit 1
+
+fi
+
+# unpacking dataset
+if [[ ! -d data ]]; then
+	echo -e "Unpacking data"
+	tar xvJf tars/data.tar.xz
+fi
+
+# compile using sbt
+echo -e "Building the executable"
+sbt clean
+sbt pack
+
+# create a symbolic link file in the root directory
+rm -f repetita
+ln -s target/pack/bin/repetita repetita
+chmod +x repetita
+
+# generate doc. If everything is ok, notify the user.
+bash repetita -doc && echo -e "\nGood news! Basic functions seem to work: You can already run ./repetita\n"
+

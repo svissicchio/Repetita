@@ -1,0 +1,9 @@
+REPETITA can be extended with new experiments and analyses.
+
+- For new experiments, add a class extending ``edu.repetita.core.Scenario`` in the ``edu.repetita.scenarios`` package: The ``edu.repetita.scenarios.ScenarioFactory`` will automatically integrate the new class among the supported scenarios.
+
+- For new analyses, add a class extending ``edu.repetita.analyses.specialized.SpecializedAnalyzer`` in the ``edu.repetita.analyses.specialized`` package. Then, you should add an instance of the new class to the private variable ``List<SpecializedAnalyzer> specializedAnalyzers`` inside ``edu.repetita.analyses.Analyzer``.
+
+Once added, the description of new experiments and analyses should immediately be shown in the new README.txt compiled by the following command: ::
+
+ $ ./repetita -doc
