@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: com.jhlabs:filters:2.0.235:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.jhlabs/filters/jars/filters-2.0.235.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.jhlabs/filters/srcs/filters-2.0.235-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

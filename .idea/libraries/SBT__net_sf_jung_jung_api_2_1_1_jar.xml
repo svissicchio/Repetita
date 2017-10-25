@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: net.sf.jung:jung-api:2.1.1:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.jung/jung-api/jars/jung-api-2.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.jung/jung-api/srcs/jung-api-2.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
