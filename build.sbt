@@ -17,8 +17,9 @@ lazy val root = (project in file(".")).
     libraryDependencies += "net.sf.jung" % "jung-graph-impl" % "2.1.1",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
     libraryDependencies += "junit" % "junit" % "4.12",
-    javaOptions in run += "-Xmx4G"    
-  )
+      crossPaths := false,
+      libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test,
+    javaOptions in run += "-Xmx4G" )
   
   
   

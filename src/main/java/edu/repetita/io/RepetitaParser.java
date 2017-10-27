@@ -3,6 +3,7 @@ package edu.repetita.io;
 import edu.repetita.core.Demands;
 import edu.repetita.core.Topology;
 import edu.repetita.utils.datastructures.Conversions;
+import scala.io.Source;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -147,9 +148,11 @@ final public class RepetitaParser {
     }
 
     public static Map<String,Map<String,String>> parseExternalSolverFeatures(String filename) {
+        String path = ClassLoader.getSystemResource(filename).getPath();
+        System.out.println("==>"+path);
         Map<String,Map<String,String>> solverFeatures = new HashMap<>();
         try {
-            Stream<String> lineStream = Files.lines(Paths.get(filename));
+            Stream<String> lineStream = Files.lines(Paths.get(path));
             Iterator<String> lines = lineStream.iterator();
 
             Map<String,String> currFeatures = new HashMap<>();
@@ -183,8 +186,10 @@ final public class RepetitaParser {
             solverFeatures.put(currFeatures.get("name"),currFeatures);
         }
         catch (Exception e) { // let it crash
+            e.printStackTrace();
             System.err.println("Cannot parse external solver spec file " + filename);
             System.exit(-1);
+
         }
 
         return solverFeatures;

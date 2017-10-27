@@ -1,0 +1,38 @@
+# For each external solver, specify how to use it within REPETITA
+# 
+# The definition of each solver must start with an identifier within square brackets.
+# It must also include the definition of the following features:
+# - name                      Name of the solver
+# - run command               Command to run the solver from CLI (use strings '$TOPOFILE' and '$DEMANDFILE' to specify topology and demand files to be taken as input; use string '$OUTFILE' for output file)
+# - gettime command           Command to output the time taken by the solver during its last run
+# - optimization effect       How to modify the routing configuration according to the output of 'run command' 
+# - field separator           The field separator in the output of 'run command' (default ' ', see below for more details)
+# - key field                 The field number in the output of 'run command' that has to be used as keys by the optimization effect (default '0', see below for more details)
+# - value field               The field number in the output of 'run command' that has to be used as value by the optimization effect (default '1', see below for more details)
+# - optimization objective    An integer indicating the solver objective among {0 for 'undefined'; 1 for 'minimize max link utilization'}
+# 
+# Implemented optimization effect
+# - setLinkWeights            Changes IGP link weights from the output of the run command (the key field is the identifier of a link, the value field is the new weight to be set on the given link)
+# - setExplicitPaths          Sets explicit paths (e.g., tunnels) from the output of the run command (the key field is the identifier of a demand, the value field is the explicit path to be set for the given demand)
+
+[compute_random_paths.py]
+name = randomExplicitPaths
+run command = python2.7 external_solvers/compute_random_paths.py $TOPOFILE $DEMANDFILE $OUTFILE
+gettime command = cat $OUTFILE | grep 'execution time' | awk -v FS=': ' '{print $2}'
+optimization effect = setExplicitPaths
+field separator = '; '
+key field = 0
+value field = 2
+optimization objective = 0
+
+[compute_random_weights.py]
+name = randomLinkWeights
+run command = python2.7 external_solvers/compute_random_weights.py $TOPOFILE $DEMANDFILE $OUTFILE
+gettime command = cat $OUTFILE | grep 'execution time' | awk -v FS='execution time: ' '{print $2}'
+optimization effect = setLinkWeights
+field separator = ' '
+key field = 0
+value field = 3
+optimization objective = 0
+
+
