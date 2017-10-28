@@ -1,0 +1,18 @@
+NODES 5
+label x y
+0_Chisinau 28.8575 47.00556
+1_Balti 27.92889 47.76167
+2________Cahul 28.19444 45.9075
+3_StarNet_ISP 0.0 0.0
+4_RoEduNet 0.0 0.0
+
+EDGES 8
+label src dest weight bw delay
+edge_0 0 1 1 8000 187
+edge_1 1 0 1 8000 187
+edge_2 0 2 1 1600 225
+edge_3 2 0 1 1600 225
+edge_4 0 3 1 13866 206
+edge_5 3 0 1 13866 206
+edge_6 0 4 1 32000 206
+edge_7 4 0 1 32000 206

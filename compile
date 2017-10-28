@@ -33,12 +33,6 @@ if [[ ! -f lib/gurobi.jar ]]; then
 
 fi
 
-# unpacking dataset
-if [[ ! -d data ]]; then
-	echo -e "Unpacking data"
-	tar xvJf tars/data.tar.xz
-fi
-
 # compile using sbt
 echo -e "Building the executable"
 sbt clean

@@ -1,0 +1,24 @@
+NODES 7
+label x y
+0_Trondheim 10.39506 63.43049
+1_Stockholm 18.0649 59.33258
+2_Helsinki 24.93545 60.16952
+3_Copenhagen 12.56553 55.67594
+4_Reykjavik -21.89541 64.13548
+5_EUROPE 0.0 0.0
+6_USA 0.0 0.0
+
+EDGES 12
+label src dest weight bw delay
+edge_0 0 1 10 6400 1022
+edge_1 1 0 10 6400 1022
+edge_2 1 2 10 6400 664
+edge_3 2 1 10 6400 664
+edge_4 1 3 10 6400 874
+edge_5 3 1 10 6400 874
+edge_6 1 5 10 6400 1517
+edge_7 5 1 10 6400 1517
+edge_8 1 6 10 6400 1517
+edge_9 6 1 10 6400 1517
+edge_10 3 4 10 6400 3509
+edge_11 4 3 10 6400 3509

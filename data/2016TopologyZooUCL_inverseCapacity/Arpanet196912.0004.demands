@@ -1,0 +1,14 @@
+DEMANDS 12
+label src dest bw
+demand_0 0 1 270295
+demand_1 0 2 1208269
+demand_2 0 3 388800
+demand_3 1 0 49526
+demand_4 1 2 53381
+demand_5 1 3 17177
+demand_6 2 0 31340
+demand_7 2 1 7556
+demand_8 2 3 10868
+demand_9 3 0 243703
+demand_10 3 1 58761
+demand_11 3 2 262673
