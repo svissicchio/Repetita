@@ -1,5 +1,7 @@
 Framework for repeatable experiments in Traffic Engineering.
 
+Extended documentation is reported on the GitHub Wiki: https://github.com/svissicchio/Repetita/wiki
+
 Features:
 - dataset with most instances from the Topology Zoo
 - a collection of traffic engineering algorithms and analyses of their results
