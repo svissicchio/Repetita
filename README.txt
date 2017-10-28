@@ -1,11 +1,9 @@
 Framework for repeatable experiments in Traffic Engineering.
 
-Extended documentation is reported on the GitHub Wiki: https://github.com/svissicchio/Repetita/wiki
-
 Features:
 - dataset with most instances from the Topology Zoo
 - a collection of traffic engineering algorithms and analyses of their results
-- libraries to simulate traffic distribution induced by ECMP, static (MPLS tunnels or OpenFlow rules)and Segment Routing paths, compute Multicommodity Flow solutions, and much more!
+- libraries to simulate traffic distribution induced by ECMP, static (MPLS tunnels or OpenFlow rules) and Segment Routing paths, compute Multicommodity Flow solutions, and much more!
 
 Typical usage: repetita -graph topology_file -demands demands_filename -solver algorithm_id -scenario scenario_id -t max_execution_time
 
@@ -23,7 +21,7 @@ Scenarios to evaluate the solutions computed by the above algorithms
 - DemandChangeReoptimization           Change demands and ask the configured solver to re-optimize
 
 Performed analyses:
-- maximum link utilization (possibly, including comparison with theoretical lower bound (MCF solution)
+- maximum link utilization, optionally including comparison with the theoretical lower bound (MCF solution)
 - number of demands with configured segment routing paths
 - number of demands with configured explicit paths
 - number of modified segment routing paths between two configurations

@@ -5,10 +5,15 @@ import edu.repetita.core.Topology;
 import edu.repetita.utils.datastructures.Conversions;
 import scala.io.Source;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -149,8 +154,50 @@ final public class RepetitaParser {
 
     public static Map<String,Map<String,String>> parseExternalSolverFeatures(String filename) {
         String path = ClassLoader.getSystemResource(filename).getPath();
-        System.out.println("==>"+path);
+        
         Map<String,Map<String,String>> solverFeatures = new HashMap<>();
+
+        try (InputStream resource = ClassLoader.getSystemResourceAsStream(filename)) {
+            List<String> lines =
+                    new BufferedReader(new InputStreamReader(resource,
+                            StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+            System.out.println("))>"+lines);
+            Map<String,String> currFeatures = new HashMap<>();
+
+            for (String line: lines) {
+                System.out.println(line);
+                if (line.isEmpty() || line.startsWith("#")) continue;
+
+                if (line.startsWith("[")){
+                    if (! currFeatures.isEmpty()){
+                        solverFeatures.put(currFeatures.get("name"),currFeatures);
+                    }
+                    currFeatures = new HashMap<>();
+                    currFeatures.put(IOConstants.SOLVER_STARTDEF,line);
+                    continue;
+                }
+
+                String[] featureArray = line.split(IOConstants.SOLVER_KEYVALUESEPARATOR);
+
+                // The first element in the featureArray is the feature name.
+                // The other elements constitute the feature value (they can be more than one if separated by '=')
+                String featName = featureArray[0].trim();
+                String value = featureArray[1];
+                for (int i = 2; i < featureArray.length; i++) {
+                    value = value.concat(IOConstants.SOLVER_KEYVALUESEPARATOR + featureArray[i]);
+                }
+                currFeatures.put(featName,value.trim());
+            }
+            // add last solver
+            solverFeatures.put(currFeatures.get("name"),currFeatures);
+
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+
+        /*
         try {
             Stream<String> lineStream = Files.lines(Paths.get(path));
             Iterator<String> lines = lineStream.iterator();
@@ -190,7 +237,7 @@ final public class RepetitaParser {
             System.err.println("Cannot parse external solver spec file " + filename);
             System.exit(-1);
 
-        }
+        }*/
 
         return solverFeatures;
     }
