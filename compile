@@ -50,5 +50,5 @@ ln -s target/pack/bin/repetita repetita
 chmod +x repetita
 
 # generate doc. If everything is ok, notify the user.
-bash repetita -doc && echo -e "\nGood news! Basic functions seem to work: You can already run ./repetita\n"
+bash repetita -doc && echo -e "\nGood news! Basic functions seem to work: You can already run ./repetita\nTry, for example: $ ./repetita -graph data/2016TopologyZooUCL_inverseCapacity/Abilene.graph -demands data/2016TopologyZooUCL_inverseCapacity/Abilene.0000.demands -solver defoCP -t 1 -scenario SingleSolverRun\n"
 
