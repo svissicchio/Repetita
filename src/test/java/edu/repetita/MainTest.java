@@ -1,4 +1,4 @@
-package tests.java.edu.repetita;
+package edu.repetita;
 
 import edu.repetita.io.IOConstants;
 import edu.repetita.io.RepetitaWriter;

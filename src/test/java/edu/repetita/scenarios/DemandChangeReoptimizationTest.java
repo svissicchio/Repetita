@@ -1,11 +1,11 @@
-package tests.java.edu.repetita.scenarios;
+package edu.repetita.scenarios;
 
 import edu.repetita.core.*;
 import edu.repetita.analyses.Analysis;
 
 import edu.repetita.scenarios.DemandChangeReoptimization;
-import tests.java.edu.repetita.ToyTopologies;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.ToyTopologies;
+import edu.repetita.Warehouse;
 import org.junit.Before;
 import org.junit.Test;
 

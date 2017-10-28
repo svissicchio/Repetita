@@ -1,11 +1,11 @@
-package tests.java.edu.repetita.solvers;
+package edu.repetita.solvers;
 
 import edu.repetita.core.Setting;
 import edu.repetita.simulators.FlowSimulator;
 import edu.repetita.solvers.wo.TabuIGPWO;
 import org.junit.Test;
 
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.Warehouse;
 
 public class TabuLSTest {
 

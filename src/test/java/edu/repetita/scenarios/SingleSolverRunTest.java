@@ -1,11 +1,11 @@
-package tests.java.edu.repetita.scenarios;
+package edu.repetita.scenarios;
 
 import edu.repetita.analyses.Analysis;
 import edu.repetita.core.*;
 import edu.repetita.paths.SRPaths;
 import edu.repetita.scenarios.SingleSolverRun;
-import tests.java.edu.repetita.ToyTopologies;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.ToyTopologies;
+import edu.repetita.Warehouse;
 import org.junit.Before;
 import org.junit.Test;
 

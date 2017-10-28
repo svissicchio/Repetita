@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.scenarios;
+package edu.repetita.scenarios;
 
 import edu.repetita.core.Scenario;
 import edu.repetita.core.Setting;
@@ -8,7 +8,7 @@ import edu.repetita.analyses.Analysis;
 import edu.repetita.analyses.Analyzer;
 import edu.repetita.scenarios.SingleLinkFailureRobustness;
 import edu.repetita.solvers.sr.MIPTwoSRNoSplit;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.Warehouse;
 import org.junit.Before;
 import org.junit.Test;
 

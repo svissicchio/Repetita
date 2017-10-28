@@ -1,9 +1,9 @@
-package tests.java.edu.repetita.simulators;
+package edu.repetita.simulators;
 
 import edu.repetita.core.Demands;
 import edu.repetita.core.Topology;
-import tests.java.edu.repetita.ToyTopologies;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.ToyTopologies;
+import edu.repetita.Warehouse;
 import edu.repetita.core.Setting;
 import edu.repetita.simulators.specialized.ExplicitPathFlowSimulator;
 import edu.repetita.paths.ExplicitPaths;

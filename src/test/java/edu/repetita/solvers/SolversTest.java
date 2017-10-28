@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.solvers;
+package edu.repetita.solvers;
 
 import edu.repetita.core.Setting;
 import edu.repetita.core.Solver;
@@ -8,7 +8,7 @@ import edu.repetita.simulators.FlowSimulator;
 import edu.repetita.solvers.SolverFactory;
 import org.junit.Test;
 
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.Warehouse;
 import java.util.HashMap;
 import java.util.Map;
 

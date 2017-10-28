@@ -1,18 +1,18 @@
-package tests.java.edu.repetita.solvers;
+package edu.repetita.solvers;
 
-import tests.java.edu.repetita.Warehouse;
 import edu.repetita.core.Setting;
 import edu.repetita.simulators.FlowSimulator;
 import edu.repetita.paths.SRPaths;
-import edu.repetita.solvers.sr.SRLS;
+import edu.repetita.solvers.sr.DefoCP;
 import org.junit.Test;
 
-public class SRLSTest {
+import edu.repetita.Warehouse;
+
+public class DefoCPTest {
 
     /* Variables */
     private final Warehouse warehouse = new Warehouse();
-    private final SRLS solver = new SRLS();
-    //private final SpecializedFlowSimulator simulator = this.solver.getFlowSimulator();
+    private final DefoCP solver = new DefoCP();
     private final FlowSimulator simulator = FlowSimulator.getInstance();
 
     /* Support methods */
@@ -37,12 +37,12 @@ public class SRLSTest {
         System.out.println("\n*** Optimization results ***");
         System.out.println("initial link utilization: " + initialLoad);
         System.out.println("initial SR paths: " + (initialPaths == null ? "none": "\n" + SRPaths.toString(setting.getTopology(),setting.getDemands(),initialPaths)));
-        System.out.println("link utilization after 10 seconds: " + loadAfter5);
-        System.out.println("SR paths after 10 seconds (" + pathsAfter5.getPathsWithIntermediateSegments().keySet().size() +
+        System.out.println("link utilization after 5 seconds: " + loadAfter5);
+        System.out.println("SR paths after 5 seconds (" + pathsAfter5.getPathsWithIntermediateSegments().keySet().size() +
                            " with intermediate segments):\n" + SRPaths.toString(setting.getTopology(),setting.getDemands(),pathsAfter5));
 
         assert(loadAfter5 < initialLoad);
-        assert pathsAfter5.getPathsWithIntermediateSegments().keySet().size() > 0;
+        assert(pathsAfter5 != null && pathsAfter5.getPathsWithIntermediateSegments().keySet().size() > 0);
     }
 
     @Test

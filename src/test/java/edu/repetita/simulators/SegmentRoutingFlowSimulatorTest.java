@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.simulators;
+package edu.repetita.simulators;
 
 import edu.repetita.core.Demands;
 import edu.repetita.core.Setting;
@@ -7,8 +7,8 @@ import edu.repetita.paths.SRPaths;
 import edu.repetita.simulators.specialized.ECMPFlowSimulator;
 import edu.repetita.simulators.specialized.SegmentRoutingFlowSimulator;
 import org.junit.Test;
-import tests.java.edu.repetita.ToyTopologies;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.ToyTopologies;
+import edu.repetita.Warehouse;
 
 
 public class SegmentRoutingFlowSimulatorTest {

@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.solvers;
+package edu.repetita.solvers;
 
 import edu.repetita.core.Solver;
 import edu.repetita.io.IOConstants;

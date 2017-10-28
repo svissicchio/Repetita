@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.scenarios;
+package edu.repetita.scenarios;
 
 import edu.repetita.core.Scenario;
 import edu.repetita.core.Setting;
@@ -6,7 +6,7 @@ import edu.repetita.core.Solver;
 import edu.repetita.scenarios.ScenarioFactory;
 import org.junit.Before;
 import org.junit.Test;
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.Warehouse;
 
 import java.util.*;
 

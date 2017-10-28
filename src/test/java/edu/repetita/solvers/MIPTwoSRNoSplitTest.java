@@ -1,4 +1,4 @@
-package tests.java.edu.repetita.solvers;
+package edu.repetita.solvers;
 
 import edu.repetita.core.Setting;
 import edu.repetita.simulators.FlowSimulator;
@@ -6,7 +6,7 @@ import edu.repetita.paths.SRPaths;
 import edu.repetita.solvers.sr.MIPTwoSRNoSplit;
 import org.junit.Test;
 
-import tests.java.edu.repetita.Warehouse;
+import edu.repetita.Warehouse;
 
 public class MIPTwoSRNoSplitTest {
     /* Variables */
