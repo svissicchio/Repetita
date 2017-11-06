@@ -1,0 +1,33 @@
+NODES 10
+label x y
+1_Europe_(GEANT2) 0.0 0.0
+2_People's_Republic_of_China 0.0 0.0
+3_Japan_(NII) 0.0 0.0
+5_JANET 0.0 0.0
+6_US_Research_Networks_ESnet 0.0 0.0
+7_US_Research_Networks_Abilene 0.0 0.0
+8_LINX 0.0 0.0
+9_UK_ISPs 0.0 0.0
+10_Private_Peering_with_ISPs 0.0 0.0
+11_Global_Transit_to_the_World 0.0 0.0
+
+EDGES 18
+label src dest weight bw delay
+edge_0 0 1 10 2500000 10
+edge_1 1 0 10 2500000 10
+edge_2 0 2 10 2500000 10
+edge_3 2 0 10 2500000 10
+edge_4 0 3 10 2500000 10
+edge_5 3 0 10 2500000 10
+edge_6 0 4 10 2500000 10
+edge_7 4 0 10 2500000 10
+edge_8 0 5 10 2500000 10
+edge_9 5 0 10 2500000 10
+edge_10 3 6 10 2500000 10
+edge_11 6 3 10 2500000 10
+edge_12 3 8 10 2500000 10
+edge_13 8 3 10 2500000 10
+edge_14 3 9 10 2500000 10
+edge_15 9 3 10 2500000 10
+edge_16 6 7 10 2500000 10
+edge_17 7 6 10 2500000 10
