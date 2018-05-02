@@ -15,10 +15,6 @@ if [[ $(which java) == "" ]]; then
 	print_need_tool "java"
 fi
 
-if [[ $(which scala) == "" ]]; then
-	print_need_tool "scala"
-fi
-
 if [[ $(which sbt) == "" ]]; then
 	print_need_tool "sbt"
 fi
