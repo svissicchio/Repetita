@@ -122,5 +122,11 @@ public class SegmentRoutingFlowSimulatorTest {
                 assert flow[e] == 0.0;
             }
         }
+
+        // check that the paths printed are as expected
+        System.out.println(this.simulator.getNextHops());
+        String[] pathDescriptions = this.simulator.getNextHops().split("\nDestination ");
+        assert (pathDescriptions[1].replace("\nsequence of middlepoints","").trim()).equals("d: c -> a -> b -> d");
+        assert (pathDescriptions[2].replace("\nsequence of middlepoints","").trim()).equals("b: a -> c -> d -> b");
     }
 }

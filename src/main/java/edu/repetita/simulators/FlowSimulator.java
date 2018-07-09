@@ -27,6 +27,7 @@ public class FlowSimulator {
     private List<SpecializedFlowSimulator> simulators = new ArrayList<>();
     private Setting setting;
     public double[] flow;
+    public StringBuffer nextHops;
 
     // getter methods
     public Setting getSetting(){ return this.setting; }
@@ -43,16 +44,25 @@ public class FlowSimulator {
      */
     public void setup(Setting setting){
         this.setting = setting;
+        this.computeFlows();
     }
 
     /**
-     * Internally computes traffic distribution for the setting provided in input through
-     * the setup method.
-     * Such traffic distribution must be stored in the double[] flow variable.
+     * Returns the next-hops for each source-destination pair.
+     */
+    public String getNextHops(){
+        return this.nextHops.toString();
+    }
+
+    /**
+     * Internally computes and stores in private variables traffic distribution and next-hops
+     * for the setting provided in input through the setup method.
      */
     public void computeFlows(){
         Set<String> simulatedDemands = new HashSet<>();
         this.flow = new double[this.setting.getTopology().nEdges];
+        this.nextHops = new StringBuffer();
+        int priority = 1;
 
         // simulate the different parts of the configuration using the specialized simulators one by one
         for (SpecializedFlowSimulator sim: this.simulators){
@@ -65,6 +75,10 @@ public class FlowSimulator {
             for(int e = 0; e < this.flow.length; e++){
                 this.flow[e] += sim.getFlow()[e];
             }
+
+            // update next-hop string
+            this.nextHops.append("\n***Next hops priority " + priority + " (" + sim.name() + " paths)***\n" + sim.getNextHops());
+            priority++;
         }
     }
 

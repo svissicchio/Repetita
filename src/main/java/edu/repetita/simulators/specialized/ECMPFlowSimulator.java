@@ -52,6 +52,7 @@ public class ECMPFlowSimulator extends SpecializedFlowSimulator {
         // computing paths
         ShortestPaths sp = new ShortestPaths(topology);
         sp.computeShortestPaths();
+        this.nextHops = sp.getNextHops();
 
         // simulate flows per destination: for every dest, add passing flows on edges to the flow variable
         for (int dest = 0; dest < nNodes; dest++) {
@@ -60,11 +61,11 @@ public class ECMPFlowSimulator extends SpecializedFlowSimulator {
                 toRoute[node] = traffic[node][dest];
             }
 
-            // push flow by topological order from farthest to closest using all shortest paths
+            // push flow by topological order from the farthest to the closest using all shortest paths
             int[] ordering = sp.topologicalOrdering;
             int nOrdering = sp.makeTopologicalOrdering(dest);
 
-            // visit nodes in far -> dest order, which is reverse of ordering.
+            // visit nodes in the far -> dest order
             while (--nOrdering >= 0) {
                 int node = ordering[nOrdering];
 

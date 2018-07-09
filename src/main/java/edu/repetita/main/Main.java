@@ -23,8 +23,9 @@ public class Main {
 	/* Private print methods */
 	private static String getUsage(){
         return "Typical usage: repetita " +
-                "-graph topology_file -demands demands_filename -solver algorithm_id -scenario scenario_id " +
-                "-t max_execution_time\n";
+                "-graph topology_file -demands demands_filename -demandchanges list_demands_filename " +
+                "-solver algorithm_id -scenario scenario_id -t max_execution_time -outpaths path_filename " +
+                "-out output_filename -verbose debugging_level\n";
     }
 
 	private static String getUsageOptions(){
@@ -32,7 +33,7 @@ public class Main {
         ArrayList<String> descriptions = new ArrayList<>();
 
         options.addAll(Arrays.asList("h","doc","graph","demands","demandchanges","solver",
-                                     "scenario","t","out","verbose"));
+                                     "scenario","t","outpaths","out","verbose"));
 
         descriptions.addAll(Arrays.asList(
                 "only prints this help message",
@@ -43,7 +44,8 @@ public class Main {
                 "identifier of the algorithm to run, to be chosen among " + storage.getSolverIDs().toString(),
                 "identifier of the scenario to simulate, to be chosen among " + storage.getScenarioIDs().toString(),
                 "maximum time in seconds allowed to the solver",
-                "name of the file collecting all the output (stdout by default)",
+                "name of the file collecting information of paths",
+                "name of the file collecting all the information (standard output by default)",
                 "level of debugging (default 0, only results reported)"
         ));
 
@@ -161,6 +163,10 @@ public class Main {
 
             case "-t":
 				timeLimit = Double.parseDouble(args[++i]);
+                break;
+
+            case "-outpaths":
+                RepetitaWriter.setOutpathsFilename(args[++i]);
                 break;
 
             case "-out":

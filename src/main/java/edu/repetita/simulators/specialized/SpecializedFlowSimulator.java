@@ -2,15 +2,18 @@ package edu.repetita.simulators.specialized;
 
 import edu.repetita.core.Setting;
 import edu.repetita.core.Topology;
+import javafx.util.Pair;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class SpecializedFlowSimulator {
     Setting setting;
     double[] flow;
     Set<String> demandsToIgnore = new HashSet<>();
+    String nextHops;
 
     /**
      * Must return the name of the specific flow simulator.
@@ -26,6 +29,7 @@ public abstract class SpecializedFlowSimulator {
      * Must compute traffic distribution for the setting provided in input through
      * the setup method.
      * Such traffic distribution must be stored in the double[] flow variable.
+     * Also, next hops computed here are stored in the nextHops variable.
      *
      * @return a collection of identifiers for the demands whose traffic distribution has been simulated
      */
@@ -66,4 +70,8 @@ public abstract class SpecializedFlowSimulator {
      */
     void resetEdgeLoad(double[] load) { for (int edge = 0; edge < load.length; edge++) load[edge] = 0; }
 
+    /**
+     * Returns a StringBuffer description of the computed paths
+     */
+    public String getNextHops() {return this.nextHops; }
 }

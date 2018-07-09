@@ -32,6 +32,7 @@ public class ExplicitPathFlowSimulator extends SpecializedFlowSimulator {
     @Override
     public Collection<String> computeFlows() {
         List<String> simulatedDemands = new ArrayList<>();
+        StringBuffer currNextHops = new StringBuffer("");
 
         // extract information from setting
         Topology topology = this.setting.getTopology();
@@ -46,6 +47,7 @@ public class ExplicitPathFlowSimulator extends SpecializedFlowSimulator {
         ExplicitPaths paths = this.setting.getExplicitPaths();
         if (paths == null){
             RepetitaWriter.appendToOutput("No explicit paths set!",2);
+            this.nextHops = "";
             return simulatedDemands;
         }
 
@@ -60,13 +62,18 @@ public class ExplicitPathFlowSimulator extends SpecializedFlowSimulator {
                 continue;
             }
 
+            currNextHops.append("\nDestination " + topology.nodeLabel[demands.dest[demand]] + "\n");
+
             double amount = demands.amount[demand];
             for (int edge : pathEdges) {
                 this.flow[edge] += amount;
+                currNextHops.append("node: " + topology.nodeLabel[topology.edgeSrc[edge]] + ", next hops: [" + topology.nodeLabel[topology.edgeDest[edge]] + "]\n");
             }
 
             simulatedDemands.add(demands.label[demand]);
         }
+
+        this.nextHops = currNextHops.toString();
 
         return simulatedDemands;
     }

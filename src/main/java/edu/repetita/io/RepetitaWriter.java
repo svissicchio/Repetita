@@ -5,10 +5,15 @@ import java.util.List;
 
 public class RepetitaWriter {
     private static String outputFilename = null;
+    private static String outpathsFilename = null;
     private static int verbose = 0;
 
     public static void setOutputFilename (String filename){
         outputFilename = filename;
+    }
+
+    public static void setOutpathsFilename (String filename){
+        outpathsFilename = filename;
     }
 
     public static void setVerbose(int verboseLevel) {
@@ -60,6 +65,12 @@ public class RepetitaWriter {
         }
     }
 
+    public static void writeToPathFile (String paths) {
+        if (outpathsFilename != null) {
+            writeToFile(paths, outpathsFilename);
+        }
+    }
+
     public static String formatAsListOneColumn(List<String> listOfStrings){
         StringBuilder formatted = new StringBuilder();
         for(String s: listOfStrings){
@@ -100,4 +111,5 @@ public class RepetitaWriter {
         }
         return commented.toString();
     }
+
 }

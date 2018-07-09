@@ -73,6 +73,7 @@ object TrafficMatrixGenerator extends App {
     generate_matrix_gravity(topologyData)
     
     val outFileName = fileName + f".$i%04d" + ".demands"
+    println(outFileName)
     val outFile = new PrintWriter(outFileName)
     
     outFile.println("DEMANDS")

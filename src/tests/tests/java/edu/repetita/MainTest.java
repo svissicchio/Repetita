@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Permission;
 import java.util.*;
@@ -153,6 +154,29 @@ public class MainTest {
     }
 
     @Test
+    public void testMain_noErrorsNoVerboseOutpaths_runDefoWithFractionalTime () throws Exception {
+        String outpathsFilename = "defo-paths.txt";
+
+        this.customArgs.put("-solver","defoCP");
+        this.customArgs.put("-t","0.5");
+        this.customArgs.put("-outpaths",outpathsFilename);
+        this.setArgs(this.customArgs);
+
+        Main.main(this.getArgs());
+
+        Path outfile = Paths.get(outpathsFilename);
+        String content = new String(Files.readAllBytes(outfile));
+        Files.delete(outfile);
+        System.out.println(content);
+        Pattern regex = Pattern.compile(".*Next hops priority 1 \\(explicit paths\\)\\*\\*\\*\n\n\\*\\*\\*Next hops priority 2.*", Pattern.DOTALL);
+        Matcher regexMatcher = regex.matcher(content);
+        assert regexMatcher.find();
+        Pattern regex1 = Pattern.compile(".*Next hops priority 2 \\(sr paths\\)\\*\\*\\*\n\nDestination.*", Pattern.DOTALL);
+        Matcher regexMatcher1 = regex1.matcher(content);
+        assert regexMatcher1.find();
+    }
+
+    @Test
     public void testMain_noErrorsNoVerbose_runMIPWeightOptimizer () throws Exception {
         this.customArgs.put("-solver","MIPWeightOptimizer");
         this.customArgs.put("-t","5");
@@ -235,6 +259,25 @@ public class MainTest {
         for(int i=0;i<10;i++) {
             Main.main(this.getArgs());
         }
+    }
+
+    @Test
+    public void testMain_noErrorsOutpaths_runAnotherExternalSolver () throws Exception {
+        String outpathsFilename = "explicit-paths.txt";
+
+        this.customArgs.put("-solver","randomExplicitPaths");
+        this.customArgs.put("-outpaths",outpathsFilename);
+        this.setArgs(this.customArgs);
+
+        Main.main(this.getArgs());
+
+        Path outfile = Paths.get(outpathsFilename);
+        String content = new String(Files.readAllBytes(outfile));
+        Files.delete(outfile);
+        System.out.println(content);
+        Pattern regex = Pattern.compile(".*Next hops priority 1 \\(explicit paths\\)\\*\\*\\*\n\nDestination.*", Pattern.DOTALL);
+        Matcher regexMatcher = regex.matcher(content);
+        assert regexMatcher.find();
     }
 
 }

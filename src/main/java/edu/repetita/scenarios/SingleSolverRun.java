@@ -2,6 +2,8 @@ package edu.repetita.scenarios;
 
 import edu.repetita.core.Scenario;
 import edu.repetita.analyses.Analysis;
+import edu.repetita.io.RepetitaWriter;
+import edu.repetita.simulators.FlowSimulator;
 
 /*
  *  Basic scenario: we run the solvers for a set amount of time,
@@ -37,5 +39,8 @@ public class SingleSolverRun extends Scenario {
         // print results
         this.print(analyzer.compare(preOpt,postOpt));
         this.print("Optimization time (in seconds): " + optTime / 1000000000.0);
+
+        // save on paths file (if asked by the user)
+        RepetitaWriter.writeToPathFile(FlowSimulator.getInstance().getNextHops());
     }
 }

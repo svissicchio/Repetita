@@ -37,6 +37,8 @@ public class FlowSimulatorTest {
         ecmp.computeFlows();
         System.out.println(FlowSimulator.getMaxUtilization(ecmp.getFlow(),setting));
         assert this.simulator.getMaxUtilization() == FlowSimulator.getMaxUtilization(ecmp.getFlow(),setting);
+
+        System.out.println(FlowSimulator.getInstance().nextHops);
     }
 
     @Test
@@ -92,6 +94,14 @@ public class FlowSimulatorTest {
                 assert trafficOnCurrEdge == 0.0;
             }
         }
+
+        // check subset of printed paths (explicit and igp paths for destination b)
+        System.out.println(this.simulator.getNextHops());
+        String[] pathDescriptionFragments = this.simulator.getNextHops().split("Destination b\n");
+        String explicitPathsForB = pathDescriptionFragments[1].split("\n\n")[0];
+        assert explicitPathsForB.equals("node: c, next hops: [a]\nnode: a, next hops: [b]");
+        String igpPathsForB = pathDescriptionFragments[2].split("\n\n")[0];
+        assert igpPathsForB.startsWith("node: a, next hops: [b]\nnode: b, next hops: []\nnode: c, next hops: [a, d]\nnode: d, next hops: [b]");
     }
 
 }
