@@ -19,7 +19,7 @@ import be.ac.ucl.ingi.rls.metaheuristic.WeightedDemands
  *  LoadOptimizer tries to find paths so that the max maxLinkLoad of edges is minimal.
  */
 
-class LoadOptimizer(topologyData: TopologyData, decisionDemands: DemandsData)(debug: Boolean) {
+class LoadOptimizer(topologyData: TopologyData, decisionDemands: DemandsData, maxSeg: Int)(debug: Boolean) {
   private val topology = Topology(topologyData)
   
   /*
@@ -53,7 +53,7 @@ class LoadOptimizer(topologyData: TopologyData, decisionDemands: DemandsData)(de
   // val delays = new DelayDataImpl(topology.nNodes, shortestPaths, topologyData)
   
   // initialize network state
-  private val pathState  = new PathState(decisionDemands)
+  private val pathState  = new PathState(decisionDemands, maxSeg)
   // val delayState = new DelayState(nDemands, delays, pathState)
   
 //  val flowState  = new FlowStateRecomputeDAG(nNodes, nEdges, shortestPaths, pathState, decisionDemands)

@@ -1,5 +1,7 @@
 package edu.repetita.main;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.repetita.core.Scenario;
 import edu.repetita.core.Setting;
 import edu.repetita.core.Solver;
@@ -11,9 +13,11 @@ import edu.repetita.io.interpreters.InterpreterFactory;
 import edu.repetita.scenarios.ScenarioFactory;
 import edu.repetita.solvers.SolverFactory;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
@@ -33,7 +37,7 @@ public class Main {
         ArrayList<String> descriptions = new ArrayList<>();
 
         options.addAll(Arrays.asList("h","doc","graph","demands","demandchanges","solver",
-                                     "scenario","t","outpaths","out","verbose"));
+                                     "scenario","t","outpaths","out","verbose","extra"));
 
         descriptions.addAll(Arrays.asList(
                 "only prints this help message",
@@ -46,10 +50,34 @@ public class Main {
                 "maximum time in seconds allowed to the solver",
                 "name of the file collecting information of paths",
                 "name of the file collecting all the information (standard output by default)",
-                "level of debugging (default 0, only results reported)"
+                "level of debugging (default 0, only results reported)",
+                "A path to a json file containing a JSON dictionary of extra options." +
+		                " These options are specific to a solver."
         ));
 
 	    return "All options:\n" + RepetitaWriter.formatAsListTwoColumns(options, descriptions, "  -");
+    }
+
+    private static String getUsageExtraOptions() {
+        StringBuilder sb = new StringBuilder();
+
+        for (String solverID: storage.getSolverIDs()) {
+            Setting setting = storage.getSolver(solverID).getSetting();
+            HashMap<String, String> extras = new HashMap<>();
+            setting.help(extras);
+
+            if (extras.size() > 0) {
+                ArrayList<String> options = new ArrayList<>(extras.keySet());
+                ArrayList<String> descriptions = new ArrayList<>();
+                for (String option: options) {
+                    descriptions.add(extras.get(option));
+                }
+                sb.append("\n").append(solverID).append(" extra options:\n")
+                        .append(RepetitaWriter.formatAsListTwoColumns(options, descriptions, "   "));
+            }
+        }
+
+        return sb.toString();
     }
 
 
@@ -60,6 +88,7 @@ public class Main {
 
         System.out.println(getUsage());
         System.out.println(getUsageOptions());
+        System.out.println(getUsageExtraOptions());
 
 		System.exit(1);
 	}
@@ -123,6 +152,10 @@ public class Main {
 
 		String solverChoice = "tabuLS";
 		String scenarioChoice = "SingleSolverRun";
+		HashMap<String, Object> extras = new HashMap<>();
+
+		// create storage
+		storage = RepetitaStorage.getInstance();
 
 		// parse command line arguments
 		int i = 0;
@@ -178,14 +211,20 @@ public class Main {
 			    RepetitaWriter.setVerbose(verboseLevel);
 				break;
 
-			default: 
+			case "-extra":
+				try {
+					ObjectMapper mapper = new ObjectMapper();
+					extras = mapper.readValue(new File(args[++i]), new TypeReference<Map<String, Object>>(){});
+				} catch (IOException e) {
+					printHelp("IOException when reading extra options: " + e.getMessage());
+				}
+				break;
+
+			default:
 				printHelp("Unknown option " + args[i]);
-			}    
+			}
 			i++;
 		}
-
-        // create storage (after having set the verbose level)
-        storage = RepetitaStorage.getInstance();
 
         // check that the strictly necessary information has been provided in input (after having creating the storage)
         if (args.length < 1 || help) printHelp("");
@@ -196,11 +235,17 @@ public class Main {
         if (! storage.getSolverIDs().contains(solverChoice)) printHelp("Unknown solver: " + solverChoice);
         if (! storage.getScenarioIDs().contains(scenarioChoice)) printHelp("Unknown scenario: " + scenarioChoice);
 
-        // run an experiment according to command line parameters
-        Setting setting = storage.newSetting(graphFilename, demandsFilename, demandChangesFilenames);
-
 		Solver solver = storage.getSolver(solverChoice);
 		solver.setVerbose(verboseLevel);
+
+		// run an experiment according to command line parameters
+		Setting setting = null;
+		try {
+			setting = storage.newSetting(solver, graphFilename, demandsFilename,
+					demandChangesFilenames, extras);
+		} catch (IllegalArgumentException e) {
+			printHelp(e.getMessage());
+		}
 
 		Scenario scenario = storage.newScenario(scenarioChoice, setting, solver);
 		scenario.run((long) timeLimit * 1000);

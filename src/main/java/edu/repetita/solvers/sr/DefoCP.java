@@ -9,6 +9,7 @@ import edu.repetita.core.Demands;
 import edu.repetita.core.Setting;
 import edu.repetita.core.Topology;
 import edu.repetita.paths.SRPaths;
+import edu.repetita.settings.SRSetting;
 import edu.repetita.solvers.SRSolver;
 
 import java.io.PrintWriter;
@@ -41,10 +42,11 @@ public class DefoCP extends SRSolver {
 
     @Override
     public void solve(Setting setting, long timeMillis) {
+        SRSetting srSetting = (SRSetting) setting;
         // extract information from setting
-        Topology topology = setting.getTopology();
+        Topology topology = srSetting.getTopology();
         int nEdges = topology.nEdges;
-        Demands demands = setting.getDemands();
+        Demands demands = srSetting.getDemands();
 
         // translate in scala data structures
         be.ac.ucl.ingi.defo.core.Topology defoTopology = be.ac.ucl.ingi.defo.core.Topology.apply(topology.edgeSrc, topology.edgeDest);
@@ -57,7 +59,7 @@ public class DefoCP extends SRSolver {
         DEFOConstraint[][] demandConstraints = new DEFOConstraint[demands.nDemands][0];
         DEFOConstraint[] topologyConstraints = new DEFOConstraint[0];
 
-        DEFOInstance instance = new DEFOInstance(defoTopology, topology.edgeWeight, demandTraffic, demands.source, demands.dest, demandConstraints, topologyConstraints, edgeCapacities, topology.edgeLatency);
+        DEFOInstance instance = new DEFOInstance(defoTopology, topology.edgeWeight, demandTraffic, demands.source, demands.dest, demandConstraints, topologyConstraints, edgeCapacities, topology.edgeLatency, srSetting.getMaxSeg());
         DEFOptimizer optimizer = new DEFOptimizer(instance, this.verbose > 0, scala.Option.apply((PrintWriter) null));
 
         TimeUnit timeLimit = new TimeUnit((int) timeMillis, timeMillis + "ms");
@@ -72,11 +74,11 @@ public class DefoCP extends SRSolver {
 
         // write results back
         int[][] bestPaths = optimizer.core().bestPaths();
-        SRPaths paths = new SRPaths(setting.getDemands(),setting.getTopology().nNodes);
+        SRPaths paths = new SRPaths(srSetting.getDemands(),srSetting.getTopology().nNodes);
         for (int demand = 0; demand < demands.nDemands; demand++) {
             paths.setPath(demand, bestPaths[demand]);
         }
-        setting.setSRPaths(paths);
+        srSetting.setSRPaths(paths);
     }
 
 }

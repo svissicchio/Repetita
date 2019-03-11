@@ -37,7 +37,7 @@ public class DemandChangeReoptimization extends Scenario {
 
             // create a new (minimalistic) setting and analyze it
             Long timeBeforeChange = System.nanoTime();
-            Setting currentSetting = new Setting();
+            Setting currentSetting = this.setting.clone();
             currentSetting.setTopology(topology);
             currentSetting.setDemands(currentDemands);
             currentSetting.setRoutingConfiguration(lastConfig);

@@ -4,6 +4,7 @@ import edu.repetita.core.Demands;
 import edu.repetita.core.Setting;
 import edu.repetita.core.Topology;
 import edu.repetita.paths.SRPaths;
+import edu.repetita.settings.SRSetting;
 import edu.repetita.solvers.SRSolver;
 import be.ac.ucl.ingi.rls.LoadOptimizer;
 import be.ac.ucl.ingi.rls.io.DemandsData;
@@ -71,6 +72,7 @@ public class SRLS extends SRSolver {
     private void initializeScalaVariables(Setting setting){
         Topology topology = setting.getTopology();
         Demands demands = setting.getDemands();
+        SRSetting srSetting = (SRSetting) setting;
 
         rlsTopology = TopologyData.apply(
                 topology.nodeLabel,
@@ -83,6 +85,6 @@ public class SRLS extends SRSolver {
         );
 
         rlsDemands = DemandsData.apply(demands.label, demands.source, demands.dest, demands.amount);
-        loadOptimizer = new LoadOptimizer(rlsTopology, rlsDemands, this.verbose > 0);
+        loadOptimizer = new LoadOptimizer(rlsTopology, rlsDemands, srSetting.getMaxSeg(), this.verbose > 0);
     }
 }

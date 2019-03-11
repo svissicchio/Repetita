@@ -13,10 +13,11 @@ class DEFOInstance(
   val demandConstraints: Array[Array[DEFOConstraint]],
   val topologyConstraints: Array[DEFOConstraint],
   val capacities: Array[Int],
-  val latencies: Array[Int])
+  val latencies: Array[Int],
+  val maxSeg: Int = 2)
   
 object DEFOInstance {
-  def apply(topologyData: TopologyData, demandsData: DemandsData): DEFOInstance = {
+  def apply(topologyData: TopologyData, demandsData: DemandsData, maxSeg: Int): DEFOInstance = {
     val topology = Topology(topologyData.edgeSrcs, topologyData.edgeDests)
     new DEFOInstance(
       topology,
@@ -27,7 +28,8 @@ object DEFOInstance {
       Array.fill(demandsData.demandTraffics.length)(Array.empty),
       Array.empty,
       topologyData.edgeCapacities,
-      topologyData.edgeLatencies
+      topologyData.edgeLatencies,
+      maxSeg
     )
   }
 }

@@ -14,6 +14,8 @@ lazy val root = (project in file(".")).
     libraryDependencies += "net.sf.jung" % "jung-visualization" % "2.1.1",
     libraryDependencies += "net.sf.jung" % "jung-graph-impl" % "2.1.1",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
+    libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8",
+    libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8",
     javaOptions in run += "-Xmx4G"    
   )
 

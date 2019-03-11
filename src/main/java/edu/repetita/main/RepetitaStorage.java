@@ -56,16 +56,18 @@ public class RepetitaStorage {
         return scenario;
     }
 
-    public Setting newSetting(String graphFilename, String demandsFilename){
-        Setting setting = new Setting();
+    public Setting newSetting(Solver solver, String graphFilename, String demandsFilename){
+        Setting setting = solver.getSetting();
         setting.setTopologyFilename(graphFilename);
         setting.setDemandsFilename(demandsFilename);
         return setting;
     }
 
-    public Setting newSetting(String graphFilename, String demandsFilename, List<String> otherDemandsFilenames){
-        Setting setting = this.newSetting(graphFilename,demandsFilename);
+    public Setting newSetting(Solver solver, String graphFilename, String demandsFilename,
+                              List<String> otherDemandsFilenames, Map<String, Object> extras){
+        Setting setting = this.newSetting(solver, graphFilename,demandsFilename);
         setting.setDemandChangesFilenames(otherDemandsFilenames);
+        setting.setExtras(extras);
         return setting;
     }
 
