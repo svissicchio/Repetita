@@ -18,6 +18,7 @@ public class IOConstants {
     public static final String SOLVER_OBJ = "optimization objective";
     public static final String[] SOLVER_OBJVALUES = {"undefined", "minimize max link utilization"};
     public static final int SOLVER_OBJVALUES_DFLT = 0;
+    public static final int SOLVER_OBJVALUES_MINMAXLINKUSAGE = 1;
 
     public static final String FLOWSIMULATOR_NAME = "routing model";
 
