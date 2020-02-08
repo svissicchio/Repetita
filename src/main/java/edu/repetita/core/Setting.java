@@ -1,8 +1,7 @@
 package edu.repetita.core;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import edu.repetita.io.RepetitaParser;
 import edu.repetita.paths.ExplicitPaths;
@@ -42,7 +41,7 @@ public class Setting {
 	public String getTopologyFilename() {
 		return this.topologyFilename;
 	}
-	
+
 	public Topology getTopology() {
 		return this.topology;
 	}
@@ -50,11 +49,11 @@ public class Setting {
     public void setTopology(Topology topology) {
         this.topology = topology;
     }
-	
+
 	public String getDemandsFilename() {
 		return this.demandsFilename;
 	}
-	
+
 	public Demands getDemands() { return this.demands; }
 
     public void setDemands(Demands newDemands) {
@@ -113,13 +112,33 @@ public class Setting {
         return this.config.getExplicitPaths();
     }
 
+    /**
+     * Fills the args map with each extra argument name as key and its description as value
+     */
+    public void help(HashMap<String, String> args) { }
+
+    protected void setExtra(String key, Object value) throws IllegalArgumentException {
+        throw new IllegalArgumentException("This solver does not take option '" + key + "'");
+    }
+
+    public void setExtras(Map<String, Object> extras) throws IllegalArgumentException {
+        for (String key : extras.keySet()) {
+	        Object value = extras.get(key);
+            setExtra(key, value);
+        }
+    }
+
     public Setting clone(){
         Setting copy = new Setting();
+        this.init(copy);
+        return copy;
+    }
+
+    protected void init(Setting copy) {
         copy.setTopology(this.topology.clone());
         copy.setDemands(this.demands);
         copy.setDemandChanges(this.demandChanges);
         copy.setNumberReoptimizations(this.numberReoptimizations);
         copy.setRoutingConfiguration(this.getRoutingConfiguration().clone());
-        return copy;
     }
 }

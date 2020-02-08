@@ -41,6 +41,7 @@ class CoreSolver(instance: DEFOInstance, verbose: Boolean, statsFile: Option[Pri
   private[this] val latencies: Array[Int] = instance.latencies
   private[this] val nEdges = topology.nEdges
   private[this] val nNodes = topology.nNodes
+  private[this] val maxSeg = instance.maxSeg // Max number of intermediate segments (i.e., source and destination node not included)
 
   // Preprocessed data
   private[this] val ecmpStruct = ECMPStructure(topology, weights, latencies)
@@ -250,7 +251,7 @@ class CoreSolver(instance: DEFOInstance, verbose: Boolean, statsFile: Option[Pri
         val demand = demandsId(i)
 
         // Path length
-        constraints.append(paths(i).length <= 4)
+        constraints.append(paths(i).length <= 2 + maxSeg)
         // Reach
         constraints.append(new CanReach(paths(i), reachStruct))
         // The graph of links is acyclic

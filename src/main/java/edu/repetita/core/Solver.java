@@ -52,4 +52,11 @@ public abstract class Solver {
 	 * @return the time needed by the last call to solve(), in nanoseconds 
 	 */
 	public abstract long solveTime(Setting setting);
+
+	/**
+	 * @return a Setting object to store and parse all the specific arguments of this solver
+	 */
+	public Setting getSetting() {
+        return new Setting();
+    }
 }

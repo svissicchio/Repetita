@@ -278,4 +278,9 @@ public class MIPTwoSRNoSplit extends SRSolver {
         }
     }
 
+    @Override
+    public Setting getSetting() {
+        return new Setting();
+    }
+
 }

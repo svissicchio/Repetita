@@ -8,11 +8,11 @@ import be.ac.ucl.ingi.rls.io.DemandsData
  *  A structure to store the current paths (detour sequences) in the network.
  */ 
 
-class PathState(demands: DemandsData)
+class PathState(demands: DemandsData, maxSeg: Int)
 extends TrialState
 {
   val nDemands = demands.nDemands
-  val maxDetourSize = 6
+  val maxDetourSize = 2 + maxSeg
   
   def source(demand: Demand): Node = demands.demandSrcs(demand)
   def destination(demand: Demand): Node = demands.demandDests(demand)
