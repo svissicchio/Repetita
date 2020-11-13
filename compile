@@ -19,6 +19,14 @@ if [[ $(which sbt) == "" ]]; then
 	print_need_tool "sbt"
 fi
 
+# check for gurobi.jar and copy it under lib/                                   
+if [ -e "${GUROBI_HOME%%:*}/lib/gurobi.jar" ]; then                             
+  echo -e "Copying gurobi.jar from ${GUROBI_HOME%%:*}/lib"                         
+  cp ${GUROBI_HOME%%:*}/lib/gurobi.jar lib/                                     
+else                                                                            
+  echo -e "${RED}Could not find gurobi.jar in directory ${NC} ${GUROBI_HOME%%:*}/lib"          
+fi
+
 # check for gurobi
 if [[ ! -f lib/gurobi.jar ]]; then
 	echo -e "${RED}Please copy gurobi.jar in the lib/ directory.${NC}"
