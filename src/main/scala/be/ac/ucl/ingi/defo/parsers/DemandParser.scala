@@ -1,8 +1,10 @@
 package be.ac.ucl.ingi.defo.parsers
 
-import scala.collection.mutable.ArrayBuffer
+
+import java.io.{BufferedWriter, FileWriter}
+
 import scala.io.Source
-import oscar.util.OutFile
+import scala.collection.mutable.ArrayBuffer
 
 object DemandParser {
 
@@ -74,3 +76,6 @@ object DemandParser {
     outFile.close()
   }
 }
+
+
+

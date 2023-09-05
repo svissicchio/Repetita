@@ -91,7 +91,7 @@ object Main extends App {
     }
     catch {
       case e: Exception => {
-        println("Error: " + e.getStackTraceString) // e.getMessage)
+        println("Error: " + e.getMessage)
         System.exit(1)
       }
     }

@@ -2,7 +2,7 @@ package edu.repetita.paths;
 
 import edu.repetita.core.Demands;
 import edu.repetita.core.Topology;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.HashMap;
 import java.util.Map;
