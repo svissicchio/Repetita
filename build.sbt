@@ -30,9 +30,7 @@ libraryDependencies ++= Seq(
     "com.novocode" % "junit-interface" % "0.11" % Test
 )
 
-// Adding a library dependency for ScalaTest
 
-libraryDependencies += "oscar" %% "oscar-cp" % "5.0.0"
 
 
 // Some common options for the Scala compiler
