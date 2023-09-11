@@ -13,13 +13,12 @@ scalaVersion := "2.13.6"
 
 resolvers += "Mvn" at "https://cogcomp.seas.upenn.edu/m2repo/"
 
-resolvers += "GitHub pschaus/oscar Maven repo" at "https://maven.pkg.github.com/pschaus/oscar"
-
+resolvers += "jitpack" at "https://jitpack.io"
 
 // Adding a library dependency for ScalaTest
 libraryDependencies ++= Seq(
     "gurobi" % "gurobi" % "5.0.1",
-    "oscar" %% "oscar-cp" % "5.0.0",
+    "com.github.pschaus.oscar" % "oscar-cp_2.13" % "main-b5cb0738c5-1",
     "org.scalatest" %% "scalatest" % "3.2.16" % Test,
     "org.apache.commons" % "commons-lang3" % "3.13.0",
     "net.sourceforge.collections" % "collections-generic" % "4.01",
