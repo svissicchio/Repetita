@@ -191,6 +191,21 @@ class IncrPathVar(final val store: NetworkStore, final val origId: Int, final va
       i += 1
     }
   }
+
+  override def iterator(): Iterator[Int] = {
+    new Iterator[Int] {
+      var i = visitedPtr.value + 1
+      override def hasNext: Boolean = i < removedPtr.value
+      override def next(): Int = {
+        if (i < removedPtr.value) throw new NoSuchElementException("next on empty iterator")
+        else {
+          val node = nodes(i)
+          i += 1
+          node
+        }
+      }
+    }
+  }
   
   final def visited: Array[Int] = Array.tabulate(nVisited)(i => nodes(i))
   

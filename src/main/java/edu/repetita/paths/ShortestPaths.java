@@ -2,7 +2,6 @@ package edu.repetita.paths;
 
 import edu.repetita.core.Topology;
 import edu.repetita.utils.datastructures.ArrayHeapInt;
-import javafx.util.Pair;
 import org.apache.commons.collections15.map.HashedMap;
 
 import java.util.*;

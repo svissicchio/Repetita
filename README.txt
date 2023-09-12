@@ -1,32 +1,18 @@
-REPETITA is a framework aimed at easing repeatable experiments on Traffic Engineering algorithms.
-Our technical report provides more information about the perspective and ideas behind this framework, see https://arxiv.org/abs/1710.08665
-Extended documentation is reported on the GitHub Wiki https://github.com/svissicchio/Repetita/wiki
-A branch of the code with an additional segment-routing algorithm can be found at https://github.com/jadinm/Repetita 
+Framework for repeatable experiments in Traffic Engineering.
 
+Features:
+- dataset with most instances from the Topology Zoo
+- a collection of traffic engineering algorithms and analyses of their results
+- libraries to simulate traffic distribution induced by ECMP, static (MPLS tunnels or OpenFlow rules) and Segment Routing paths, compute Multicommodity Flow solutions, and much more!
 
-# EXPERIMENT AND COMPARE WITH THE STATE OF THE ART
-
-REPETITA currently features:
-- a dataset with more than 250 real network topologies, from the Topology Zoo, Rocketfuel and DEFO projects, enhanced with synthetic traffic matrices
-- a collection of traffic engineering algorithms, based on IGP weight optimization and Segment Routing
-- automatic support to run and analyze experiments
-- traffic engineering libraries, including ready-to-use code to compute Multi-Commodity Flow solutions, and to simulate traffic distribution induced by (i) equal-cost multipath routing, (ii) explicit paths as those installed by MPLS tunnels or OpenFlow, and (iii) Segment Routing paths.
-
-For example, you can check effectiveness (e.g., link utilization), time efficiency, and control-plane overhead (number of performed changes) of your new traffic engineering algorithm after any single-link failure with a single CLI command: use a similar command to compare with existing algorithms!
-
-
-# HOW DOES IT WORK?
-
-Once installed, you can run experiments by simply typing commands on the CLI.
-
-Typical usage: repetita -graph topology_file -demands demands_filename -solver algorithm_id -scenario scenario_id -t max_execution_time
+Typical usage: repetita -graph topology_file -demands demands_filename -demandchanges list_demands_filename -solver algorithm_id -scenario scenario_id -t max_execution_time -outpaths path_filename -out output_filename -verbose debugging_level
 
 Supported traffic engineering algorithms (solvers)
 - SRLS                      A Segment Routing path optimizer approximating the Local Search algorithm described in "Gay et al., Expect the Unexpected: Sub-Second Optimization for Segment Routing. In INFOCOM, 2017."(full version at https://github.com/rhartert/defo-ls)
 - defoCP                    A Segment Routing path optimizer implementing the Constraint Programming algorithm described in "Hartert et al., A Declarative and Expressive Approach to Control Forwarding Paths in Carrier-Grade Networks. In SIGCOMM, 2015."
 - MIPTwoSRNoSplit           A Segment Routing path optimizer inspired by "Bhatia et al., Optimized network traffic engineering using segment routing. In INFOCOM, 2015." (it uses very similar Linear Programs but does not allow arbitrary split ratios)
 - TabuIGPWO                 An IGP weight optimizer inspired by "B. Fortz and M. Thorup. Internet traffic engineering byoptimizing OSPF weights. In INFOCOM, 2000."
-- ExternalSolvers           Any algorithm described in external_solvers/solvers-specs.txt: add your own there, is easy!
+- ExternalSolvers           Any algorithm described in external_solvers/solvers-specs.txt
 
 Scenarios to evaluate the solutions computed by the above algorithms
 - SingleLinkFailureReoptimization      The solver is called to re-optimize the forwarding after every link failure in a randomly generated series
@@ -35,15 +21,9 @@ Scenarios to evaluate the solutions computed by the above algorithms
 - DemandChangeReoptimization           Change demands and ask the configured solver to re-optimize
 
 Performed analyses:
-- maximum link utilization (possibly, including comparison with theoretical lower bound (MCF solution)
+- maximum link utilization, optionally including comparison with the theoretical lower bound (MCF solution)
 - number of demands with configured segment routing paths
 - number of demands with configured explicit paths
 - number of modified segment routing paths between two configurations
 - number of modified explicit paths between two configurations
 
-
-# JOIN THE PROJECT!
-
-We are well aware that the current version of the framework has several limitations, from the number of supported algorithms to the dataset.
-We have done our best to make the code as easy to extend as possible, in the hope to overcome current limitations over time. 
-We would warmly welcome contributions to REPETITA: every contribution can be a step towards more fair and rigorous approach to research in traffic engineering!

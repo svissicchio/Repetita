@@ -2,7 +2,6 @@ package edu.repetita.simulators.specialized;
 
 import edu.repetita.core.Setting;
 import edu.repetita.core.Topology;
-import javafx.util.Pair;
 
 import java.util.Collection;
 import java.util.HashSet;

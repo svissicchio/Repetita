@@ -38,16 +38,16 @@ object PathsParser {
     expect(lines.next() == "PATHS", "ERROR: expected PATHS section")
     
     val paths = HashMap.empty[Demand, Array[Node]]
-    val demands = ArrayStack.empty[Demand]
+    var demands = Seq[Demand]()
     
     var line = lines.next()
     while (line != "") {
       val items = line.split(' ')
-      val demand = nameToDemand(items(0))
+      val demand: Demand = nameToDemand(items(0))
       val nodes = items.tail.map(nameToNode)
       
       paths += demand -> nodes
-      demands.push(demand)
+      demands = demands :+ demand
       
       line = lines.next()
     }

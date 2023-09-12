@@ -2,7 +2,6 @@ package be.ac.ucl.ingi.defo.parsers
 
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
-import oscar.util.OutFile
 
 object TopologyParser {
   
