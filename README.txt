@@ -26,7 +26,8 @@ Supported traffic engineering algorithms (solvers)
 - defoCP                    A Segment Routing path optimizer implementing the Constraint Programming algorithm described in "Hartert et al., A Declarative and Expressive Approach to Control Forwarding Paths in Carrier-Grade Networks. In SIGCOMM, 2015."
 - MIPTwoSRNoSplit           A Segment Routing path optimizer inspired by "Bhatia et al., Optimized network traffic engineering using segment routing. In INFOCOM, 2015." (it uses very similar Linear Programs but does not allow arbitrary split ratios)
 - TabuIGPWO                 An IGP weight optimizer inspired by "B. Fortz and M. Thorup. Internet traffic engineering byoptimizing OSPF weights. In INFOCOM, 2000."
-- ExternalSolvers           Any algorithm described in external_solvers/solvers-specs.txt: add your own there, is easy!
+- CG4SR                     A Segment Routing path optimizer implementing a Column Generation algorithm described in "Mathieu Jadin, Francois Aubry, Pierre Schaus, and Olivier Bonaventure. CG4SR: Near Optimal Traffic Engineering for Segment Routing with Column Generation. In INFOCOM, 2019."
+- ExternalSolvers           Any algorithm described in external_solvers/solvers-specs.txt
 
 Scenarios to evaluate the solutions computed by the above algorithms
 - SingleLinkFailureReoptimization      The solver is called to re-optimize the forwarding after every link failure in a randomly generated series
