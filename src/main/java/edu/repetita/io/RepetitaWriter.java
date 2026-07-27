@@ -37,7 +37,7 @@ public class RepetitaWriter {
                 e.printStackTrace();
             }
         }
-        else{
+        else if (verbose >= 1) {
             System.out.println(content);
         }
     }

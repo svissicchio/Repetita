@@ -39,6 +39,9 @@ public class RepetitaStorage {
     }
 
     public Solver getSolver(String solverID){
+        if (this.solvers == null || !this.solvers.containsKey(solverID)) {
+            this.loadSolvers();
+        }
         return this.solvers.get(solverID);
     }
 

@@ -35,7 +35,7 @@ public class ExternalSolver extends Solver {
             }
         }
         if (this.cliTimeoutCommand == null){
-            throw new Exception("External solver " + name + " not created: No command available on the operative system to bound the time taken by external solvers");
+            this.cliTimeoutCommand = "";
         }
 	}
 
@@ -64,7 +64,7 @@ public class ExternalSolver extends Solver {
 		String timeLimit = Long.toString(milliseconds);
         String transformedCommand = this.specializeCommand(this.runCommand, setting.getTopologyFilename(), setting.getDemandsFilename());
 
-		String finalCommand =  this.cliTimeoutCommand + " " + timeLimit + "s " + transformedCommand;
+		String finalCommand = (this.cliTimeoutCommand.isEmpty() ? "" : this.cliTimeoutCommand + " " + timeLimit + "s ") + transformedCommand;
         RepetitaWriter.appendToOutput(finalCommand,2);
 		String runOutput = this.executor.executeCommand(finalCommand);
 		if (runOutput.isEmpty()){

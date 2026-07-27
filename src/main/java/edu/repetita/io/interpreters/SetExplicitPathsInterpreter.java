@@ -33,13 +33,17 @@ public class SetExplicitPathsInterpreter extends ExternalSolverInterpreter {
         for (String l: lines){
             String[] data = l.split(this.getFieldSeparator());
             if (data.length > demandField && data.length > pathField) {
-                String[] edgesList = data[pathField].split("-");
-                int[] edges = new int[edgesList.length];
-                for (int i = 0; i < edgesList.length; i++){
-                    edges[i] = topology.getEdgeId(edgesList[i]);
-                }
-                int demandIndex = demands.getDemandIndex(data[demandField]);
-                paths.setPath(demandIndex,edges);
+                try {
+                    String[] edgesList = data[pathField].trim().split("-");
+                    int[] edges = new int[edgesList.length];
+                    for (int i = 0; i < edgesList.length; i++){
+                        edges[i] = topology.getEdgeId(edgesList[i]);
+                    }
+                    int demandIndex = demands.getDemandIndex(data[demandField].trim());
+                    if (demandIndex >= 0) {
+                        paths.setPath(demandIndex, edges);
+                    }
+                } catch (Exception ignored) {}
             }
         }
         setting.setExplicitPaths(paths);

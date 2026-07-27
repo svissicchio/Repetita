@@ -2,25 +2,31 @@ package edu.repetita.utils;
 
 import edu.repetita.core.Demands;
 import edu.repetita.core.Topology;
-import gurobi.*;
+import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 
 /**
  * Computes the Multi-Commodity Flow lower bound for the maximum utilization.
- * This uses an LP model, made with the Gurobi LP solvers,
- * and thus needs gurobi installed and gurobi.jar in the classpath.
+ * This uses an LP model, made with Google OR-Tools.
  *  
  * @author Steven Gay
  */
 
 public class MCF {
+  static {
+      Loader.loadNativeLibraries();
+  }
+
   private Topology topology;
   private Demands demands;
   private double[][] traffic;
   private int nNodes;
   private int nEdges;
   
-  private GRBEnv env;
-  private GRBModel model;
+  private MPSolver model;
   
   private boolean verbose = false;
   
@@ -62,91 +68,74 @@ public class MCF {
     try {
       initialize();
     }
-    catch (GRBException e) {
+    catch (Throwable e) {
       e.printStackTrace();
     }
   }
   
-  private GRBVar maxUtilization;
-  private GRBVar[] load;
-  private GRBVar[][] loadToDest;
+  private MPVariable maxUtilization;
+  private MPVariable[] load;
+  private MPVariable[][] loadToDest;
   
-  private GRBConstr[][] flowConservation;
-  private GRBConstr[] loadLimits;
+  private MPConstraint[][] flowConservation;
+  private MPConstraint[] loadLimits;
   
-  private void initialize() throws GRBException {
-    /*
-     *  Build model, we will change it at each optimization request
-     */
-    env = new GRBEnv();
-    model = new GRBModel(env);
-    model.getEnv().set(GRB.StringParam.LogFile, "");
-    if (!verbose) model.getEnv().set(GRB.IntParam.LogToConsole, 0);
-    model.getEnv().set(GRB.IntParam.Threads, 4);    // do not use all available procs, to mimick generic computer
+  private void initialize() throws Exception {
+    model = MPSolver.createSolver("GLOP");
+    if (model == null) {
+      throw new Exception("GLOP solver not available");
+    }
     
-    // Partial maxLinkLoad variables, loadToDest[dest][edge] = the part of the maxLinkLoad on edge for destination dest
-    loadToDest = new GRBVar[nNodes][];
-    
+    loadToDest = new MPVariable[nNodes][nEdges];
     for (int dest = 0; dest < nNodes; dest++) {
-      loadToDest[dest] = model.addVars(nEdges, GRB.CONTINUOUS);
-    }
-
-    // Load variables, maxLinkLoad[edge] = maxLinkLoad of edge
-    load = model.addVars(nEdges, GRB.CONTINUOUS);
-    
-    maxUtilization = model.addVar(0.0, 1000.0, 0.0, GRB.CONTINUOUS, "");
-    model.update();
-    // end of variables
-
-    // objective
-    GRBLinExpr objExpr = new GRBLinExpr();
-    objExpr.addTerm(1.0, maxUtilization);
-    model.setObjective(objExpr, GRB.MINIMIZE);
-    
-    // Sum partial loads = total maxLinkLoad
-    for (int edge = 0; edge < nEdges; edge++) {
-      GRBLinExpr expr = new GRBLinExpr();
-      for (int dest = 0; dest < nNodes; dest++) {
-        expr.addTerm(1.0, loadToDest[dest][edge]);
+      for (int edge = 0; edge < nEdges; edge++) {
+        loadToDest[dest][edge] = model.makeNumVar(0.0, MPSolver.infinity(), "");
       }
-      model.addConstr(expr, GRB.EQUAL, load[edge], "");
+    }
+
+    load = new MPVariable[nEdges];
+    for (int edge = 0; edge < nEdges; edge++) {
+        load[edge] = model.makeNumVar(0.0, MPSolver.infinity(), "");
     }
     
-    // Flow conservation: for all destination, for all nodes, flowsIn + demand = flowsOut <=> - flowsIn + flowsOut = demand
-    flowConservation = new GRBConstr[nNodes][nNodes];
+    maxUtilization = model.makeNumVar(0.0, 1000.0, "");
+
+    MPObjective objExpr = model.objective();
+    objExpr.setCoefficient(maxUtilization, 1.0);
+    objExpr.setMinimization();
+    
+    for (int edge = 0; edge < nEdges; edge++) {
+      MPConstraint expr = model.makeConstraint(0, 0, "");
+      for (int dest = 0; dest < nNodes; dest++) {
+        expr.setCoefficient(loadToDest[dest][edge], 1.0);
+      }
+      expr.setCoefficient(load[edge], -1.0);
+    }
+    
+    flowConservation = new MPConstraint[nNodes][nNodes];
     for (int dest = 0; dest < nNodes; dest++) {
       for (int node = 0; node < nNodes; node++) {
-        GRBLinExpr expr = new GRBLinExpr();
-        for (int edge: topology.inEdges[node])  expr.addTerm(-1, loadToDest[dest][edge]);
-        for (int edge: topology.outEdges[node]) expr.addTerm( 1, loadToDest[dest][edge]);
-        
         if (node != dest) {
-          flowConservation[dest][node] = model.addConstr(expr, GRB.EQUAL, traffic[node][dest] / scalingFactor, "");
+          flowConservation[dest][node] = model.makeConstraint(traffic[node][dest] / scalingFactor, traffic[node][dest] / scalingFactor, "");
+          for (int edge: topology.inEdges[node])  flowConservation[dest][node].setCoefficient(loadToDest[dest][edge], -1);
+          for (int edge: topology.outEdges[node]) flowConservation[dest][node].setCoefficient(loadToDest[dest][edge], 1);
         }
-        /*
-        else {
-          model.addConstr(expr, GRB.EQUAL, -sumDemandsToDest(dest), s"flowConservation($dest,$node)")
-        }
-        */
       }
     }
     
-    // simplify the problem a little: out edges of destination should have no maxLinkLoad in destination's partial maxLinkLoad graph
     for (int dest = 0; dest < nNodes; dest++) {
       for (int edge : topology.outEdges[dest]) {
-        model.addConstr(loadToDest[dest][edge], GRB.EQUAL, 0, "");
+        MPConstraint expr = model.makeConstraint(0, 0, "");
+        expr.setCoefficient(loadToDest[dest][edge], 1.0);
       }
     }
     
-    // Links flow, capacity and maxUsage
-    loadLimits = new GRBConstr[nEdges];
+    loadLimits = new MPConstraint[nEdges];
     for (int edge = 0; edge < nEdges; edge++) {
-      GRBLinExpr expr = new GRBLinExpr();
-      expr.addTerm(topology.edgeCapacity[edge] / scalingFactor, maxUtilization);
-      loadLimits[edge] = model.addConstr(expr, GRB.GREATER_EQUAL, load[edge], "");
+      loadLimits[edge] = model.makeConstraint(0.0, MPSolver.infinity(), "");
+      loadLimits[edge].setCoefficient(maxUtilization, topology.edgeCapacity[edge] / scalingFactor);
+      loadLimits[edge].setCoefficient(load[edge], -1.0);
     }
-    
-    model.update();    
   }
 
   /**
@@ -159,9 +148,6 @@ public class MCF {
    */
   public double computeMaxUtilization() {
     try {
-      // set parameters according to topology and demands
-      
-      // recompute traffic from demands
       for (int i = 0; i < nNodes; i++) {
         for (int j = 0; j < nNodes; j++) {
           traffic[i][j] = 0.0;
@@ -174,32 +160,32 @@ public class MCF {
         traffic[source][dest] += demands.amount[demand];
       }
       
-      // set required traffic in partial flows
-
-      // set capacities from edge capacities and weight (infinite weight = edge unusable)
-      for (int edge = 0; edge < nEdges; edge++) {
-        if (topology.edgeWeight[edge] == Topology.INFINITE_DISTANCE || topology.edgeCapacity[edge] <= 0.0) {
-          model.chgCoeff(loadLimits[edge], maxUtilization, 0.0);
-        }
-        else {
-          model.chgCoeff(loadLimits[edge], maxUtilization, topology.edgeCapacity[edge] / scalingFactor);
+      for (int dest = 0; dest < nNodes; dest++) {
+        for (int node = 0; node < nNodes; node++) {
+          if (node != dest) {
+            flowConservation[dest][node].setBounds(traffic[node][dest] / scalingFactor, traffic[node][dest] / scalingFactor);
+          }
         }
       }
 
-    
-      model.update();
+      for (int edge = 0; edge < nEdges; edge++) {
+        if (topology.edgeWeight[edge] == Topology.INFINITE_DISTANCE || topology.edgeCapacity[edge] <= 0.0) {
+          loadLimits[edge].setCoefficient(maxUtilization, 0.0);
+        }
+        else {
+          loadLimits[edge].setCoefficient(maxUtilization, topology.edgeCapacity[edge] / scalingFactor);
+        }
+      }
+
+      MPSolver.ResultStatus resultStatus = model.solve();
       
-      // compute MCF
-      model.optimize();
-      
-      // return MCF if available
-      double obj = model.get(GRB.DoubleAttr.ObjVal);
-      return obj;      
+      if (resultStatus == MPSolver.ResultStatus.OPTIMAL || resultStatus == MPSolver.ResultStatus.FEASIBLE) {
+          return model.objective().value();
+      }
     }
-    catch (GRBException e) {
+    catch (Throwable e) {
       e.printStackTrace();
     }
     return -1.0;
   }
-
 }

@@ -100,9 +100,7 @@ public class Topology {
         this.edgeDest = edgeDest;
         for(int w: edgeWeight){
             if (w < 1){
-                RepetitaWriter.appendToOutput("ERROR: Asked to set a negative weight (" + w + "), " +
-                        "but all weights must be positive integers!",0);
-                System.exit(1);
+                throw new IllegalArgumentException("ERROR: Asked to set a negative weight (" + w + "), but all weights must be positive integers!");
             }
         }
         this.edgeWeight = edgeWeight;
@@ -149,9 +147,7 @@ public class Topology {
     public void setWeight(String edgeId, int weight) {
         int edgeIndex = Arrays.asList(edgeLabel).indexOf(edgeId);
         if (weight < 1){
-            RepetitaWriter.appendToOutput("ERROR: Given weight " + weight + " for link " + edgeId +
-                    ", but all weights must be positive integers!",0);
-            System.exit(1);
+            throw new IllegalArgumentException("ERROR: Given weight " + weight + " for link " + edgeId + ", but all weights must be positive integers!");
         }
         edgeWeight[edgeIndex] = weight;
     }

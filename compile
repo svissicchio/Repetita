@@ -19,15 +19,6 @@ if [[ $(which sbt) == "" ]]; then
 	print_need_tool "sbt"
 fi
 
-# check for gurobi
-if [[ ! -f lib/gurobi.jar ]]; then
-	echo -e "${RED}Please copy gurobi.jar in the lib/ directory.${NC}"
-	echo -e "Some parts of repetita (e.g., MCF and the MIPTwoSRNoSplit solver) need gurobi."
-	echo -e "- If you don't have gurobi, you can visit http://www.gurobi.com to get more information on how to download and install the tool"
-	echo -e "- Once you have installed gurobi, you can find the location of gurobi.py by searching your filesystem. For example, in Linux and macOS, you can run the command: find / -name gurobi.jar 2>&1 | grep -v \"^find:\""
-	exit 1
-
-fi
 
 # compile using sbt
 echo -e "Building the executable"

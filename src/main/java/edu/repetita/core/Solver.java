@@ -8,7 +8,7 @@ import edu.repetita.io.IOConstants;
  * (e.g., see SRSolver and scenarios for algorithms based on Segment Routing)
  */
 public abstract class Solver {
-    protected int verbose = 1;
+    protected int verbose = 0;
     protected int objective = IOConstants.SOLVER_OBJVALUES_DFLT;
     private String[] possibleObjectives = IOConstants.SOLVER_OBJVALUES;
 

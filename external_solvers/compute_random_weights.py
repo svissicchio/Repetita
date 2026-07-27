@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 
 import sys, random, time
 import networkx as nx
@@ -74,13 +74,12 @@ class RandomWeightSolver:
         if outfilename!=None:
             sys.stdout=open(outfilename,'w')
         for (s,t) in new_graph.edges():
-            print new_graph[s][t]['label'],s,t,new_graph[s][t]['weight']
-        #print new_graph.edges(data=True)
-        print "execution time: %s" %((end-start)*1000000000)
+            print(new_graph[s][t]['label'],s,t,new_graph[s][t]['weight'])
+        print("execution time: %s" %((end-start)*1000000000))
 
 # command-line usage
 def print_help():
-    print "python compute_random_paths.py <topology filename> <demand filename> [<output path filename>]\n"
+    print("python compute_random_paths.py <topology filename> <demand filename> [<output path filename>]\n")
 
 if __name__=="__main__":
     if len(sys.argv) < 3 or len(sys.argv) > 4:
@@ -93,4 +92,3 @@ if __name__=="__main__":
     if len(sys.argv) == 4:
         outfile=sys.argv[3]
     solver.compute_weights(parser.get_topology(),parser.get_demands(),outfilename=outfile)
-

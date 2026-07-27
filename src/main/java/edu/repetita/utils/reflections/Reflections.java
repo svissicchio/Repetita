@@ -19,14 +19,17 @@ public class Reflections {
         pkgname = pkgname.split(",",2)[0];
 
         // Get the list of classes contained in the package
-        File directory = translateIntoDirectory(pkgname);
-        if (directory != null && directory.exists()) {
-            String[] files = directory.list();
-            if (files != null) {
-                for (String file : files) {
-                    if (file.endsWith(".class") || file.endsWith(".java")) {
-                        String className = pkgname + '.' + file.replaceAll(".(class|java)","");
-                        classes.add(className);
+        for (File directory : translateIntoDirectories(pkgname)) {
+            if (directory != null && directory.exists()) {
+                String[] files = directory.list();
+                if (files != null) {
+                    for (String file : files) {
+                        if ((file.endsWith(".class") || file.endsWith(".java")) && !file.contains("$")) {
+                            String className = pkgname + '.' + file.replaceAll("\\.(class|java)$","");
+                            if (!className.endsWith("Test") && !classes.contains(className)) {
+                                classes.add(className);
+                            }
+                        }
                     }
                 }
             }
@@ -41,20 +44,18 @@ public class Reflections {
 
     public static ArrayList<String> getPackagesInPackage(String pkgname) {
         ArrayList<String> subpkgs = new ArrayList<>();
-        File directory = translateIntoDirectory(pkgname);
-
-        if (directory != null && directory.exists()) {
-            // Get the list of the files contained in the package
-            String[] files = directory.list();
-            if (files != null) {
-                for (String file : files) {
-                    if (file.contains(".")) {
-                        continue;
-                    }
-                    String subpkgname = pkgname + '.' + file;
-                    String uriString = getURIString(subpkgname.replaceAll("\\.", File.separator));
-                    if (uriString != null) {
-                        if (new File(uriString).isDirectory()) {
+        for (File directory : translateIntoDirectories(pkgname)) {
+            if (directory != null && directory.exists()) {
+                // Get the list of the files contained in the package
+                String[] files = directory.list();
+                if (files != null) {
+                    for (String file : files) {
+                        if (file.contains(".")) {
+                            continue;
+                        }
+                        String subpkgname = pkgname + '.' + file;
+                        File subDir = new File(directory, file);
+                        if (subDir.isDirectory() && !subpkgs.contains(subpkgname)) {
                             subpkgs.add(subpkgname);
                         }
                     }
@@ -64,44 +65,64 @@ public class Reflections {
         return subpkgs;
     }
 
-    // Helper methods
-
-    private static File translateIntoDirectory(String pkgname){
-        // Get a File object for the package
-        File directory = null;
+    private static ArrayList<File> translateIntoDirectories(String pkgname){
+        ArrayList<File> dirs = new ArrayList<>();
         String relPath = pkgname.replace('.', '/');
-
-        String uriString = getURIString(relPath);
-        if (uriString != null) {
-            directory = new File(uriString);
-        }
-
-        return directory;
-    }
-
-    private static String getURIString(String relPath){
-        URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
-        if (resource == null) {
-            throw new RuntimeException("No resource for " + relPath);
-        }
-
-        URI uri = null;
+        
         try {
-            uri = resource.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Error in URI syntax: " + e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Illegal argument during URI extraction: " + e);
+            java.util.Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(relPath);
+            while (resources.hasMoreElements()) {
+                URL resource = resources.nextElement();
+                try {
+                    dirs.add(new File(resource.toURI()));
+                } catch (Exception e) {
+                    dirs.add(new File(resource.getPath()));
+                }
+            }
+        } catch (Exception e) {
+            // ignore
         }
-
-        // Translate URI in directory
-        String uriString = uri.toString();
-        uriString = uriString.replaceAll("file:","");
-
-        // Remove potential substrings due to packaging into a jar
-        uriString = uriString.replaceAll("jar:","");
-        uriString = uriString.replaceAll("target.*!","src/main/java");
-
-        return uriString;
+        
+        if (dirs.isEmpty()) {
+            try {
+                java.util.Enumeration<URL> resources = Reflections.class.getClassLoader().getResources(relPath);
+                while (resources.hasMoreElements()) {
+                    URL resource = resources.nextElement();
+                    try {
+                        dirs.add(new File(resource.toURI()));
+                    } catch (Exception e) {
+                        dirs.add(new File(resource.getPath()));
+                    }
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        
+        if (dirs.isEmpty()) {
+            try {
+                java.util.Enumeration<URL> resources = ClassLoader.getSystemClassLoader().getResources(relPath);
+                while (resources.hasMoreElements()) {
+                    URL resource = resources.nextElement();
+                    try {
+                        dirs.add(new File(resource.toURI()));
+                    } catch (Exception e) {
+                        dirs.add(new File(resource.getPath()));
+                    }
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        
+        File srcDir = new File("src/main/java/" + relPath);
+        if (srcDir.exists() && !dirs.contains(srcDir)) {
+            dirs.add(srcDir);
+        }
+        File testDir = new File("src/test/java/" + relPath);
+        if (testDir.exists() && !dirs.contains(testDir)) {
+            dirs.add(testDir);
+        }
+        return dirs;
     }
 }

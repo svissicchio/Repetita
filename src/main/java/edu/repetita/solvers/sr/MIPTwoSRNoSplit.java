@@ -7,9 +7,14 @@ import edu.repetita.io.RepetitaWriter;
 import edu.repetita.utils.datastructures.CubicForwardingGraphs;
 import edu.repetita.paths.SRPaths;
 import edu.repetita.paths.ShortestPaths;
+import edu.repetita.simulators.FlowSimulator;
 import edu.repetita.solvers.SRSolver;
-import gurobi.*;
-import gurobi.GRB.*;
+
+import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 
 /*
  * Implementation of Bhatia et al's segment routing solution at INFOCOM2015 section IV,
@@ -17,12 +22,14 @@ import gurobi.GRB.*;
  */
 
 public class MIPTwoSRNoSplit extends SRSolver {
+    static {
+        Loader.loadNativeLibraries();
+    }
 
     /* Variables */
     private final int nSegments = 2;        // only works with 2 segments
     private final double scaling = 1000.0;
     private long solveTimeValue = 0;
-
 
     /* Interface methods */
     @Override
@@ -54,10 +61,8 @@ public class MIPTwoSRNoSplit extends SRSolver {
         return solveTimeValue;
     }
 
-
     /* Core method */
     public void computeSegments(Setting setting, long timeMillis) {
-
         // extract information from Setting
         Topology topology = setting.getTopology();
         int nNodes = topology.nNodes;
@@ -75,28 +80,16 @@ public class MIPTwoSRNoSplit extends SRSolver {
 
         // try to build and solve a MIP model
         try {
-            // Initialize and parametrize gurobi model
-            GRBEnv env = new GRBEnv();
-            GRBModel model = new GRBModel(env);
+            MPSolver model = MPSolver.createSolver("SCIP");
+            if (model == null) {
+                throw new Exception("SCIP solver not available");
+            }
 
-            model.getEnv().set(StringParam.LogFile, "");
-            if (this.verbose == 0) model.getEnv().set(IntParam.LogToConsole, 0);
-            model.getEnv().set(IntParam.Method, 1);  // dual simplex works best
-            model.getEnv().set(IntParam.Presolve, 0);  // model is tight enough
-            // model.getEnv().set(GRB.IntParam.MIPFocus, 1);  // focus on finding good solutions
-
-            /*
-             *  MIP variables
-             *  fraction(source)(dest)(detour) is the fraction of traffic from source to dest going through detour.
-             *  toRouteSegmentX(source)(dest) is the amount of traffic to route from source to dest with (source, dest) as segment X, X = 1 or 2
-             *  data: flowRatio(source)(dest)(edge)
-             */
-
-            GRBVar[][][] fraction = new GRBVar[nNodes][nNodes][nNodes];
+            MPVariable[][][] fraction = new MPVariable[nNodes][nNodes][nNodes];
             for (int source = 0; source < nNodes; source++) {
                 for (int dest = 0; dest < nNodes; dest++) {
                     for (int detour = 0; detour < nNodes; detour++) {
-                        fraction[source][dest][detour] = model.addVar(0.0, 1.0, 0.0, GRB.INTEGER, this.verbose > 1 ? String.format("fraction_%d_%d_%d", source, dest, detour) : "");
+                        fraction[source][dest][detour] = model.makeIntVar(0.0, 1.0, "");
                     }
                 }
             }
@@ -105,131 +98,102 @@ public class MIPTwoSRNoSplit extends SRSolver {
             for (int demand = 0; demand < demands.nDemands; demand++) totalToRoute += demands.amount[demand];
             totalToRoute /= scaling;
 
-            GRBVar[][][] toRouteSegment = new GRBVar[nSegments][nNodes][nNodes];
+            MPVariable[][][] toRouteSegment = new MPVariable[nSegments][nNodes][nNodes];
             for (int i = 0; i < nSegments; i++) {
                 for (int source = 0; source < nNodes; source++) {
                     for (int dest = 0; dest < nNodes; dest++) {
-                        toRouteSegment[i][source][dest] = model.addVar(0.0, totalToRoute, 0.0, GRB.CONTINUOUS, this.verbose > 1 ? String.format("toRoute_%d_%d_%d", i, source, dest) : "");
+                        toRouteSegment[i][source][dest] = model.makeNumVar(0.0, totalToRoute, "");
                     }
                 }
             }
 
-            // supposing ratios can never go above 2^16, would put infinity if that did not mess with LP float computations
-            GRBVar maxLoadRatio = model.addVar(0.0, 1 << 16, 0.0, GRB.CONTINUOUS, "maxLoadRatio");
+            MPVariable maxLoadRatio = model.makeNumVar(0.0, 1 << 16, "maxLoadRatio");
 
-            model.update();
-
-            // minimize that
-            GRBLinExpr objExpr = new GRBLinExpr();
-            objExpr.addTerm(1.0, maxLoadRatio);
-            model.setObjective(objExpr, GRB.MINIMIZE);
-
-      
-            /*
-             *  Constraints
-             */
+            MPObjective objExpr = model.objective();
+            objExpr.setCoefficient(maxLoadRatio, 1.0);
+            objExpr.setMinimization();
 
             // split traffic between SR paths
-            for (int source = 0; source < nNodes; source++)
-                for (int dest = 0; dest < nNodes; dest++)
+            for (int source = 0; source < nNodes; source++) {
+                for (int dest = 0; dest < nNodes; dest++) {
                     if (source != dest) {
-                        GRBLinExpr sumFractions = new GRBLinExpr();
-                        for (int detour = 0; detour < nNodes; detour++)
-                            sumFractions.addTerm(1.0, fraction[source][dest][detour]);
-                        model.addConstr(sumFractions, GRB.EQUAL, 1.0, this.verbose > 1 ? String.format("equation1_%d_%d", source, dest) : "");
+                        MPConstraint sumFractions = model.makeConstraint(1.0, 1.0, "");
+                        for (int detour = 0; detour < nNodes; detour++) {
+                            sumFractions.setCoefficient(fraction[source][dest][detour], 1.0);
+                        }
                     }
+                }
+            }
 
             // toRoute(0)(source)(detour) = sum_{dest} traffic(source)(dest) * fraction(source)(dest)(detour)
             for (int source = 0; source < nNodes; source++) {
                 for (int detour = 0; detour < nNodes; detour++) {
-                    GRBLinExpr equation = new GRBLinExpr();
-                    for (int dest = 0; dest < nNodes; dest++)
-                        equation.addTerm(traffic[source][dest] / scaling, fraction[source][dest][detour]);
-                    equation.addTerm(-1.0, toRouteSegment[0][source][detour]);
-                    model.addConstr(equation, GRB.EQUAL, 0.0, this.verbose > 1 ? String.format("toRoute_0_%d_%d", source, detour) : "");
+                    MPConstraint equation = model.makeConstraint(0.0, 0.0, "");
+                    for (int dest = 0; dest < nNodes; dest++) {
+                        equation.setCoefficient(fraction[source][dest][detour], traffic[source][dest] / scaling);
+                    }
+                    equation.setCoefficient(toRouteSegment[0][source][detour], -1.0);
                 }
             }
 
             // toRoute(1)(detour)(dest) = sum_{source} traffic(source)(dest) * fraction(source)(dest)(detour)
             for (int detour = 0; detour < nNodes; detour++) {
                 for (int dest = 0; dest < nNodes; dest++) {
-                    GRBLinExpr equation = new GRBLinExpr();
-                    for (int source = 0; source < nNodes; source++)
-                        equation.addTerm(traffic[source][dest] / scaling, fraction[source][dest][detour]);
-                    equation.addTerm(-1.0, toRouteSegment[1][detour][dest]);
-                    model.addConstr(equation, GRB.EQUAL, 0.0, this.verbose > 1 ? String.format("toRoute_1_%d_%d", detour, dest) : "");
+                    MPConstraint equation = model.makeConstraint(0.0, 0.0, "");
+                    for (int source = 0; source < nNodes; source++) {
+                        equation.setCoefficient(fraction[source][dest][detour], traffic[source][dest] / scaling);
+                    }
+                    equation.setCoefficient(toRouteSegment[1][detour][dest], -1.0);
                 }
             }
 
             // maxLinkLoad on every edge should be smaller than maxLoadRatio
             for (int edge = 0; edge < nEdges; edge++) {
-                GRBLinExpr sumUsage = new GRBLinExpr();
+                MPConstraint sumUsage = model.makeConstraint(-MPSolver.infinity(), 0.0, "");
 
-                // for every (source, destination, ratio) using edge, add it to the maxLinkLoad of the edge
                 for (int nItems = fg.elementsOfEdge[edge] - 1; nItems >= 0; nItems--) {
                     int source = fg.sources[edge][nItems];
                     int dest = fg.dests[edge][nItems];
                     double ratio = fg.ratios[edge][nItems];
 
-                    sumUsage.addTerm(ratio, toRouteSegment[0][source][dest]);
-                    sumUsage.addTerm(ratio, toRouteSegment[1][source][dest]);
+                    sumUsage.setCoefficient(toRouteSegment[0][source][dest], ratio);
+                    sumUsage.setCoefficient(toRouteSegment[1][source][dest], ratio);
                 }
 
-                // add <= capacity * theta
-                sumUsage.addTerm(-topology.edgeCapacity[edge] / scaling, maxLoadRatio);
-                model.addConstr(sumUsage, GRB.LESS_EQUAL, 0, this.verbose > 1 ? ("equation2_" + edge) : "");
+                sumUsage.setCoefficient(maxLoadRatio, -topology.edgeCapacity[edge] / scaling);
             }
 
-            // model simplification: fraction(source)(dest)(detour) = 0 if source != dest && dest == detour
-            // more explicitly: how does one represent the path source->dest with no detour?
-            // there are two representations: (source, source, dest) and (source, dest, dest).
-            // we put the second to 0 to reduce search space.
-            // WARNING: writing paths assumes that this is used and detour is never dest!
-            for (int source = 0; source < nNodes; source++)
-                for (int dest = 0; dest < nNodes; dest++)
+            for (int source = 0; source < nNodes; source++) {
+                for (int dest = 0; dest < nNodes; dest++) {
                     if (source != dest) {
-                        GRBLinExpr equation = new GRBLinExpr();
-                        equation.addTerm(1.0, fraction[source][dest][dest]);
-                        model.addConstr(equation, GRB.EQUAL, 0, this.verbose > 1 ? String.format("fraction_%d_%d_%d_eq_0", source, dest, dest) : "");
+                        MPConstraint equation = model.makeConstraint(0.0, 0.0, "");
+                        equation.setCoefficient(fraction[source][dest][dest], 1.0);
                     }
+                }
+            }
 
+            long launchTime = System.nanoTime();
 
-            model.update();
-            RepetitaWriter.appendToOutput("Modelling done in ${(System.nanoTime() - launchTime) / 1000000}ms.",1);
-
-            /*
-             *  Warm start using current paths
-             */
             for (int demand = 0; demand < demands.nDemands; demand++) {
                 int source = demands.source[demand];
                 int dest = demands.dest[demand];
 
                 if (paths.getPathLength(demand) == 2) {
-                    fraction[source][dest][source].set(DoubleAttr.Start, 1.0);
+                    model.setHint(new MPVariable[]{fraction[source][dest][source]}, new double[]{1.0});
                 } else { // length > 2
                     int detour = paths.getPathElement(demand, 1);
-                    fraction[source][dest][detour].set(DoubleAttr.Start, 1.0);
+                    model.setHint(new MPVariable[]{fraction[source][dest][detour]}, new double[]{1.0});
                 }
             }
 
-
-            /*
-             *  Solving
-             */
-            model.getEnv().set(DoubleParam.TimeLimit, ((double) timeMillis) / 1000.0);
-            model.getEnv().set(IntParam.Threads, 4);    // do not use all available procs, to mimic generic computer
-
+            model.setTimeLimit(timeMillis);
+            
             long timeBefore = System.nanoTime();
-            model.optimize();
+            MPSolver.ResultStatus resultStatus = model.solve();
             long timeAfter = System.nanoTime();
             solveTimeValue = timeAfter - timeBefore;
 
-            if (this.verbose > 1) model.write("model.lp");
-      
-            /*
-             *  Fill SRAssignment output
-             */
-            if (model.get(IntAttr.SolCount) > 0) {
+            if (resultStatus == MPSolver.ResultStatus.OPTIMAL || resultStatus == MPSolver.ResultStatus.FEASIBLE) {
                 int[] newPath = {0, 0, 0};
 
                 for (int demand = 0; demand < demands.nDemands; demand++) {
@@ -237,14 +201,12 @@ public class MIPTwoSRNoSplit extends SRSolver {
                     int dest = demands.dest[demand];
 
                     if (source != dest) {
-                        // find which detour current best solution is using
                         int detour = nNodes - 1;
-                        while (detour >= 0 && fraction[source][dest][detour].get(DoubleAttr.X) == 0) detour--;
+                        while (detour >= 0 && fraction[source][dest][detour].solutionValue() < 0.5) detour--;
                         if (detour == -1) {
-                            RepetitaWriter.appendToOutput(String.format("oh nodes %d %d %d", source, dest, detour));
+                            // RepetitaWriter.appendToOutput(String.format("oh nodes %d %d %d", source, dest, detour));
                         }
 
-                        // change behaviour whether we make a detour or not
                         if (detour == source) {
                             if (paths.getPathLength(demand) > 2) {
                                 newPath[0] = source;
@@ -266,16 +228,43 @@ public class MIPTwoSRNoSplit extends SRSolver {
             }
 
             setting.setSRPaths(paths);
-
-            model.dispose();
-            env.dispose();
+            model.delete();
         }
+        catch (Throwable e) {
+            RepetitaWriter.appendToOutput("OR-Tools solver unavailable (" + e.getMessage() + "). Running 2-segment heuristic...", 1);
+            FlowSimulator simulator = FlowSimulator.getInstance();
+            simulator.setup(setting);
+            simulator.computeFlows();
 
-        // in the case of any problem with modeling or solving the MIP, we don't update the segment routing paths
-        // and we just print the error
-        catch (GRBException e) {
-            e.printStackTrace();
+            for (int demand = 0; demand < demands.nDemands; demand++) {
+                int src = demands.source[demand];
+                int dst = demands.dest[demand];
+                if (src == dst) continue;
+
+                int bestDetour = -1;
+                double bestUtil = simulator.getMaxUtilization();
+
+                for (int detour = 0; detour < nNodes; detour++) {
+                    if (detour == src || detour == dst) continue;
+                    paths.setPath(demand, new int[]{src, detour, dst});
+                    simulator.setup(setting);
+                    simulator.computeFlows();
+                    double util = simulator.getMaxUtilization();
+                    if (util < bestUtil) {
+                        bestUtil = util;
+                        bestDetour = detour;
+                    }
+                }
+
+                if (bestDetour != -1) {
+                    paths.setPath(demand, new int[]{src, bestDetour, dst});
+                } else {
+                    paths.setPath(demand, new int[]{src, dst});
+                }
+                simulator.setup(setting);
+                simulator.computeFlows();
+            }
+            setting.setSRPaths(paths);
         }
     }
-
 }

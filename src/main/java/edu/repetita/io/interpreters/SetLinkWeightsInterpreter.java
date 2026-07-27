@@ -27,7 +27,13 @@ public class SetLinkWeightsInterpreter extends ExternalSolverInterpreter {
         for (String l: lines){
             String[] edgeData = l.split(this.getFieldSeparator());
             if (edgeData.length > weightField && edgeData.length > edgeField) {
-                newTopology.setWeight(edgeData[edgeField], Integer.parseInt(edgeData[weightField]));
+                try {
+                    int weight = Integer.parseInt(edgeData[weightField].trim());
+                    newTopology.setWeight(edgeData[edgeField].trim(), weight);
+                } catch (NumberFormatException nfe) {
+                    // System.err.println("NFE caught! " + nfe.getMessage());
+                } catch (Exception ignored) {
+                }
             }
         }
     }

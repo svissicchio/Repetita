@@ -17,7 +17,7 @@
 
 [compute_random_paths.py]
 name = randomExplicitPaths
-run command = python2.7 external_solvers/compute_random_paths.py $TOPOFILE $DEMANDFILE $OUTFILE
+run command = python3 external_solvers/compute_random_paths.py $TOPOFILE $DEMANDFILE $OUTFILE
 gettime command = cat $OUTFILE | grep 'execution time' | awk -v FS=': ' '{print $2}'
 optimization effect = setExplicitPaths
 field separator = '; '
@@ -27,7 +27,7 @@ optimization objective = 0
 
 [compute_random_weights.py]
 name = randomLinkWeights
-run command = python2.7 external_solvers/compute_random_weights.py $TOPOFILE $DEMANDFILE $OUTFILE
+run command = python3 external_solvers/compute_random_weights.py $TOPOFILE $DEMANDFILE $OUTFILE
 gettime command = cat $OUTFILE | grep 'execution time' | awk -v FS='execution time: ' '{print $2}'
 optimization effect = setLinkWeights
 field separator = ' '

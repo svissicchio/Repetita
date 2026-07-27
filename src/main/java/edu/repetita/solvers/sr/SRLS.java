@@ -5,10 +5,10 @@ import edu.repetita.core.Setting;
 import edu.repetita.core.Topology;
 import edu.repetita.paths.SRPaths;
 import edu.repetita.solvers.SRSolver;
-import be.ac.ucl.ingi.rls.LoadOptimizer;
-import be.ac.ucl.ingi.rls.io.DemandsData;
-import be.ac.ucl.ingi.rls.io.TopologyData;
-import be.ac.ucl.ingi.rls.state.PathState;
+import edu.repetita.solvers.sr.rls.LoadOptimizer;
+import edu.repetita.solvers.sr.rls.io.DemandsData;
+import edu.repetita.solvers.sr.rls.io.TopologyData;
+import edu.repetita.solvers.sr.rls.state.PathState;
 
 
 public class SRLS extends SRSolver {

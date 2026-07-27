@@ -29,11 +29,14 @@ public class Main {
     }
 
 	private static String getUsageOptions(){
+	    if (storage == null) {
+	        storage = RepetitaStorage.getInstance();
+	    }
 	    ArrayList<String> options = new ArrayList<>();
         ArrayList<String> descriptions = new ArrayList<>();
 
         options.addAll(Arrays.asList("h","doc","graph","demands","demandchanges","solver",
-                                     "scenario","t","outpaths","out","verbose"));
+                                     "scenario","t","outpaths","out","verbose","visualize"));
 
         descriptions.addAll(Arrays.asList(
                 "only prints this help message",
@@ -46,7 +49,8 @@ public class Main {
                 "maximum time in seconds allowed to the solver",
                 "name of the file collecting information of paths",
                 "name of the file collecting all the information (standard output by default)",
-                "level of debugging (default 0, only results reported)"
+                "level of debugging (default 0, only results reported)",
+                "opens interactive GUI FlowVisualizer window for computed flow distribution"
         ));
 
 	    return "All options:\n" + RepetitaWriter.formatAsListTwoColumns(options, descriptions, "  -");
@@ -61,7 +65,7 @@ public class Main {
         System.out.println(getUsage());
         System.out.println(getUsageOptions());
 
-		System.exit(1);
+		throw new IllegalArgumentException(additional != null ? additional : "");
 	}
 
 	private static void printReadme(){
@@ -120,6 +124,7 @@ public class Main {
 		double timeLimit = 10;
 		int verboseLevel = 0;
 		boolean help = false;
+		boolean visualize = false;
 
 		String solverChoice = "tabuLS";
 		String scenarioChoice = "SingleSolverRun";
@@ -178,6 +183,10 @@ public class Main {
 			    RepetitaWriter.setVerbose(verboseLevel);
 				break;
 
+			case "-visualize":
+				visualize = true;
+				break;
+
 			default: 
 				printHelp("Unknown option " + args[i]);
 			}    
@@ -204,5 +213,13 @@ public class Main {
 
 		Scenario scenario = storage.newScenario(scenarioChoice, setting, solver);
 		scenario.run((long) timeLimit * 1000);
+
+		if (visualize) {
+			edu.repetita.simulators.FlowSimulator flowSim = edu.repetita.simulators.FlowSimulator.getInstance();
+			flowSim.setup(setting);
+			edu.repetita.utils.FlowVisualizer vis = new edu.repetita.utils.FlowVisualizer(flowSim);
+			vis.saveImage("doc/visualizer_demo.png");
+			vis.blockUntilClosed();
+		}
 	}
 }

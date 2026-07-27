@@ -18,22 +18,19 @@ public class ShellCommandExecutor {
 	}
 
 	public String executeCommand(String command) {
-
-	    StringBuffer output = new StringBuffer();
-
+	    StringBuilder output = new StringBuilder();
         String[] cmd = {"/bin/sh", "-c", command};
 
-	    Process p;
 	    try {
-	        p = Runtime.getRuntime().exec(cmd);
-	        p.waitFor();
+	        ProcessBuilder pb = new ProcessBuilder(cmd);
+	        pb.redirectErrorStream(true);
+	        Process p = pb.start();
 	        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-	        String line = "";           
-	        while ((line = reader.readLine())!= null) {
-	            output.append(line + "\n");
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            output.append(line).append("\n");
 	        }
-
+	        p.waitFor();
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }

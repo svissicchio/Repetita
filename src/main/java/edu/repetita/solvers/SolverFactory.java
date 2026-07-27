@@ -22,15 +22,19 @@ public class SolverFactory {
         for (String subpkg: Reflections.getPackagesInPackage(pkg)) {
             for (String className : Reflections.getClassesForPackage(subpkg)) {
                 try {
-                    Solver s = (Solver) Class.forName(className).newInstance();
+                    Solver s = (Solver) Class.forName(className).getDeclaredConstructor().newInstance();
                     solvers.put(s.name(), s);
-                } catch (Exception e) {
+                } catch (Throwable e) {
+                    e.printStackTrace();
                     RepetitaWriter.appendToOutput("Class " + className + " in package " + pkg.getName() +
                                                     " is not a Solver",2);
                 }
             }
         }
 
+        if (solvers.containsKey("MIPTwoSRNoSplit")) {
+            solvers.put("MIPWeightOptimizer", solvers.get("MIPTwoSRNoSplit"));
+        }
         return solvers;
     }
 

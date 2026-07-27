@@ -21,10 +21,10 @@ public class ScenarioFactory {
 
         for (String className: Reflections.getClassesForPackage(pkg)){
             try{
-                Scenario s = (Scenario) Class.forName(className).newInstance();
+                Scenario s = (Scenario) Class.forName(className).getDeclaredConstructor().newInstance();
                 scenarios.put(s.name(),s);
             }
-            catch(Exception e){
+            catch(Throwable e){
                 RepetitaWriter.appendToOutput("Class " + className + " in package " + pkg.getName() + " is not a Scenario",2);
             }
         }

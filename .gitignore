@@ -1,0 +1,34 @@
+# Build / Target directories
+target/
+bin/
+*.log
+*.out
+*-paths.txt
+dependency-reduced-pom.xml
+
+# macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+/out/
+
+# Metals / BSP / Bloop / SBT
+.metals/
+.bloop/
+.bsp/
+project/
+build.sbt

@@ -1,0 +1,150 @@
+
+***Next hops priority 1 (explicit paths)***
+
+***Next hops priority 2 (sr paths)***
+
+***Next hops priority 3 (ecmp paths)***
+
+Destination 0_New_York
+node: 0_New_York, next hops: []
+node: 1_Chicago, next hops: [0_New_York]
+node: 2_Washington_DC, next hops: [0_New_York]
+node: 3_Seattle, next hops: [6_Denver]
+node: 4_Sunnyvale, next hops: [6_Denver, 5_Los_Angeles]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [10_Indianapolis]
+node: 8_Houston, next hops: [9_Atlanta]
+node: 9_Atlanta, next hops: [2_Washington_DC]
+node: 10_Indianapolis, next hops: [1_Chicago]
+
+Destination 1_Chicago
+node: 0_New_York, next hops: [1_Chicago]
+node: 1_Chicago, next hops: []
+node: 2_Washington_DC, next hops: [0_New_York]
+node: 3_Seattle, next hops: [6_Denver]
+node: 4_Sunnyvale, next hops: [6_Denver]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [10_Indianapolis]
+node: 8_Houston, next hops: [9_Atlanta, 7_Kansas_City]
+node: 9_Atlanta, next hops: [10_Indianapolis]
+node: 10_Indianapolis, next hops: [1_Chicago]
+
+Destination 2_Washington_DC
+node: 0_New_York, next hops: [2_Washington_DC]
+node: 1_Chicago, next hops: [0_New_York]
+node: 2_Washington_DC, next hops: []
+node: 3_Seattle, next hops: [4_Sunnyvale, 6_Denver]
+node: 4_Sunnyvale, next hops: [5_Los_Angeles]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [10_Indianapolis, 8_Houston]
+node: 8_Houston, next hops: [9_Atlanta]
+node: 9_Atlanta, next hops: [2_Washington_DC]
+node: 10_Indianapolis, next hops: [9_Atlanta]
+
+Destination 3_Seattle
+node: 0_New_York, next hops: [1_Chicago]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: []
+node: 4_Sunnyvale, next hops: [3_Seattle]
+node: 5_Los_Angeles, next hops: [4_Sunnyvale]
+node: 6_Denver, next hops: [3_Seattle]
+node: 7_Kansas_City, next hops: [6_Denver]
+node: 8_Houston, next hops: [5_Los_Angeles, 7_Kansas_City]
+node: 9_Atlanta, next hops: [10_Indianapolis, 8_Houston]
+node: 10_Indianapolis, next hops: [7_Kansas_City]
+
+Destination 4_Sunnyvale
+node: 0_New_York, next hops: [1_Chicago, 2_Washington_DC]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [4_Sunnyvale]
+node: 4_Sunnyvale, next hops: []
+node: 5_Los_Angeles, next hops: [4_Sunnyvale]
+node: 6_Denver, next hops: [4_Sunnyvale]
+node: 7_Kansas_City, next hops: [6_Denver]
+node: 8_Houston, next hops: [5_Los_Angeles]
+node: 9_Atlanta, next hops: [8_Houston]
+node: 10_Indianapolis, next hops: [7_Kansas_City]
+
+Destination 5_Los_Angeles
+node: 0_New_York, next hops: [2_Washington_DC]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [4_Sunnyvale]
+node: 4_Sunnyvale, next hops: [5_Los_Angeles]
+node: 5_Los_Angeles, next hops: []
+node: 6_Denver, next hops: [4_Sunnyvale]
+node: 7_Kansas_City, next hops: [8_Houston]
+node: 8_Houston, next hops: [5_Los_Angeles]
+node: 9_Atlanta, next hops: [8_Houston]
+node: 10_Indianapolis, next hops: [9_Atlanta, 7_Kansas_City]
+
+Destination 6_Denver
+node: 0_New_York, next hops: [1_Chicago]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [6_Denver]
+node: 4_Sunnyvale, next hops: [6_Denver]
+node: 5_Los_Angeles, next hops: [4_Sunnyvale]
+node: 6_Denver, next hops: []
+node: 7_Kansas_City, next hops: [6_Denver]
+node: 8_Houston, next hops: [7_Kansas_City]
+node: 9_Atlanta, next hops: [10_Indianapolis, 8_Houston]
+node: 10_Indianapolis, next hops: [7_Kansas_City]
+
+Destination 7_Kansas_City
+node: 0_New_York, next hops: [1_Chicago]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [6_Denver]
+node: 4_Sunnyvale, next hops: [6_Denver]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: []
+node: 8_Houston, next hops: [7_Kansas_City]
+node: 9_Atlanta, next hops: [10_Indianapolis, 8_Houston]
+node: 10_Indianapolis, next hops: [7_Kansas_City]
+
+Destination 8_Houston
+node: 0_New_York, next hops: [2_Washington_DC]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [4_Sunnyvale, 6_Denver]
+node: 4_Sunnyvale, next hops: [5_Los_Angeles]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [8_Houston]
+node: 8_Houston, next hops: []
+node: 9_Atlanta, next hops: [8_Houston]
+node: 10_Indianapolis, next hops: [9_Atlanta, 7_Kansas_City]
+
+Destination 9_Atlanta
+node: 0_New_York, next hops: [2_Washington_DC]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [4_Sunnyvale, 6_Denver]
+node: 4_Sunnyvale, next hops: [5_Los_Angeles]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [10_Indianapolis, 8_Houston]
+node: 8_Houston, next hops: [9_Atlanta]
+node: 9_Atlanta, next hops: []
+node: 10_Indianapolis, next hops: [9_Atlanta]
+
+Destination 10_Indianapolis
+node: 0_New_York, next hops: [1_Chicago]
+node: 1_Chicago, next hops: [10_Indianapolis]
+node: 2_Washington_DC, next hops: [9_Atlanta]
+node: 3_Seattle, next hops: [6_Denver]
+node: 4_Sunnyvale, next hops: [6_Denver]
+node: 5_Los_Angeles, next hops: [8_Houston]
+node: 6_Denver, next hops: [7_Kansas_City]
+node: 7_Kansas_City, next hops: [10_Indianapolis]
+node: 8_Houston, next hops: [9_Atlanta, 7_Kansas_City]
+node: 9_Atlanta, next hops: [10_Indianapolis]
+node: 10_Indianapolis, next hops: []
+

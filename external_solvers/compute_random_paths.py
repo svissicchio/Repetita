@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/usr/bin/env python3
 
 import sys, random, time
 import networkx as nx
@@ -73,8 +73,8 @@ class RandomPathSolver:
             for i in range(len(path_list)-1):
                 edge_string += graph[path_list[i]][path_list[i+1]]['label']+"-"
             edge_string = edge_string[:-1]
-            print "%s; %s; %s" %(demand,path_list,edge_string) 
-        print "execution time (in ns): %s" %((end-start)*1000000000)
+            print("%s; %s; %s" %(demand,path_list,edge_string)) 
+        print("execution time (in ns): %s" %((end-start)*1000000000))
 
     def _compute_path(self, graph, source, dest):
         paths=list(nx.all_simple_paths(graph, source, dest))
@@ -83,7 +83,7 @@ class RandomPathSolver:
 
 # command-line usage
 def print_help():
-    print "python compute_random_paths.py <topology filename> <demand filename> [<output path filename>]\n"
+    print("python compute_random_paths.py <topology filename> <demand filename> [<output path filename>]\n")
 
 if __name__=="__main__":
     if len(sys.argv) < 3 or len(sys.argv) > 4:
@@ -96,4 +96,3 @@ if __name__=="__main__":
     if len(sys.argv) == 4:
         outfile=sys.argv[3]
     solver.compute_paths(parser.get_topology(),parser.get_demands(),outfilename=outfile)
-
